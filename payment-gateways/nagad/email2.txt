@@ -1,0 +1,37 @@
+Dear Concerned, 
+Requesting to follow the below mentioned information regarding LIVE API Integration –
+Live APIs:
+
+Initialize API:    https://api.mynagad.com/api/dfs/check-out/initialize/ 
+
+Check Out API: https://api.mynagad.com/api/dfs/check-out/complete/
+
+Verify API: https://api.mynagad.com/api/dfs/verify/payment/
+ 
+
+You need to login to the Merchant Portal through the below Access Link using your Login ID: (MC******) and Password which you should have already received via SMS and email:
+
+https://auth.mynagad.com:10900/authentication-service-provider-1.0/login
+ 
+
+Step 1:
+In the Merchant Portal, Go to Merchant Integration Details under Merchant Management Menu.
+You will get the Merchant ID for LIVE API Integration.
+
+ 
+
+If one of these menus are not visible in the portal, please contact the Key Account Manager to enable online payment capabilities for the account.
+ 
+
+From the same page click on “Key Generate” button to get Merchant Private Key(merchant-----pri.pem) and Merchant Public Key(merchant-----pub.pem).
+
+Download the Merchant Private Key(merchant-----pri.pem) and Merchant Public Key(merchant-----pub.pem).
+Every time you click on this button you will get different keys. So change them accordingly.
+Step 2:
+Go to Merchant Integration under Merchant Management menu.
+Put your Call Back URL and Upload the Merchant Public Key(merchant-----pub.pem) which you have downloaded in Step 1.
+Add and then Submit!
+  
+
+You need to use the Nagad Gateway Server Public Key and Merchant Private Key(merchant-----pri.pem on your side which you have downloaded during step 1.
+You can download the Nagad Gateway Server Public key from Merchant Integration Details menu.

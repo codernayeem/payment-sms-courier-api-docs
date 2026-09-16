@@ -1,0 +1,10 @@
+Subject: Re: PGW Integration >> <<<MERCHANT_DISPLAY_NAME>>> >> Recurring Payment
+
+Dear <<<BKASH_REPRESENTATIVE_NAME>>>,
+
+Please find attached the PDF report of our sandbox testing results for the bKash Recurring Payment integration.
+
+We have completed the requested testing and would like to proceed to the next stage of the integration process.
+
+Thanks & Regards,
+<<<MERCHANT_DISPLAY_NAME>>>

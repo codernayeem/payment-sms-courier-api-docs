@@ -1,0 +1,322 @@
+{
+  "info": {
+    "_postman_id": "9f1f8f1d-7f6b-4cd0-9df1-04f65f5f2ba2",
+    "name": "SSLCommerz Recurring Subscription Manual Ops",
+    "description": "Manual operations for SSLCommerz recurring subscriptions. Use these to check status and stop problematic subscriptions that are not recorded in local DB.\n\nImportant: SSLCommerz recurring docs and backend gateway implementation support cancel (permanent), disable (temporary), enable, and status query actions. There is no documented delete action for subscriptions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "ssl_base_url",
+      "value": "https://securepay.sslcommerz.com",
+      "type": "string"
+    },
+    {
+      "key": "store_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "store_passwd",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refer",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subscription_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1) Get Subscription Status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "store_id",
+              "value": "{{store_id}}",
+              "type": "text"
+            },
+            {
+              "key": "store_passwd",
+              "value": "{{store_passwd}}",
+              "type": "text"
+            },
+            {
+              "key": "refer",
+              "value": "{{refer}}",
+              "type": "text"
+            },
+            {
+              "key": "subscription_id",
+              "value": "{{subscription_id}}",
+              "type": "text"
+            },
+            {
+              "key": "action",
+              "value": "getSubscriptionStatus",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{ssl_base_url}}/validator/api/v4/",
+          "host": [
+            "{{ssl_base_url}}"
+          ],
+          "path": [
+            "validator",
+            "api",
+            "v4",
+            ""
+          ]
+        },
+        "description": "Check if subscription is active/deactivated/cancelled/paused."
+      },
+      "response": []
+    },
+    {
+      "name": "2) Disable Subscription (Temporary)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "store_id",
+              "value": "{{store_id}}",
+              "type": "text"
+            },
+            {
+              "key": "store_passwd",
+              "value": "{{store_passwd}}",
+              "type": "text"
+            },
+            {
+              "key": "refer",
+              "value": "{{refer}}",
+              "type": "text"
+            },
+            {
+              "key": "subscription_id",
+              "value": "{{subscription_id}}",
+              "type": "text"
+            },
+            {
+              "key": "action",
+              "value": "disableSubscription",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{ssl_base_url}}/validator/api/v4/",
+          "host": [
+            "{{ssl_base_url}}"
+          ],
+          "path": [
+            "validator",
+            "api",
+            "v4",
+            ""
+          ]
+        },
+        "description": "Temporarily stop recurring. Can be enabled later."
+      },
+      "response": []
+    },
+    {
+      "name": "3) Enable Subscription (If Disabled)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "store_id",
+              "value": "{{store_id}}",
+              "type": "text"
+            },
+            {
+              "key": "store_passwd",
+              "value": "{{store_passwd}}",
+              "type": "text"
+            },
+            {
+              "key": "refer",
+              "value": "{{refer}}",
+              "type": "text"
+            },
+            {
+              "key": "subscription_id",
+              "value": "{{subscription_id}}",
+              "type": "text"
+            },
+            {
+              "key": "action",
+              "value": "enableSubscription",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{ssl_base_url}}/validator/api/v4/",
+          "host": [
+            "{{ssl_base_url}}"
+          ],
+          "path": [
+            "validator",
+            "api",
+            "v4",
+            ""
+          ]
+        },
+        "description": "Re-enable a temporarily disabled subscription."
+      },
+      "response": []
+    },
+    {
+      "name": "4) Cancel Subscription (Permanent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "store_id",
+              "value": "{{store_id}}",
+              "type": "text"
+            },
+            {
+              "key": "store_passwd",
+              "value": "{{store_passwd}}",
+              "type": "text"
+            },
+            {
+              "key": "refer",
+              "value": "{{refer}}",
+              "type": "text"
+            },
+            {
+              "key": "subscription_id",
+              "value": "{{subscription_id}}",
+              "type": "text"
+            },
+            {
+              "key": "action",
+              "value": "cancelSubscription",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{ssl_base_url}}/validator/api/v4/",
+          "host": [
+            "{{ssl_base_url}}"
+          ],
+          "path": [
+            "validator",
+            "api",
+            "v4",
+            ""
+          ]
+        },
+        "description": "Permanently cancel subscription to stop future bill-query/charges."
+      },
+      "response": []
+    },
+    {
+      "name": "5) Verify After Cancel (Status Re-check)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "store_id",
+              "value": "{{store_id}}",
+              "type": "text"
+            },
+            {
+              "key": "store_passwd",
+              "value": "{{store_passwd}}",
+              "type": "text"
+            },
+            {
+              "key": "refer",
+              "value": "{{refer}}",
+              "type": "text"
+            },
+            {
+              "key": "subscription_id",
+              "value": "{{subscription_id}}",
+              "type": "text"
+            },
+            {
+              "key": "action",
+              "value": "getSubscriptionStatus",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{ssl_base_url}}/validator/api/v4/",
+          "host": [
+            "{{ssl_base_url}}"
+          ],
+          "path": [
+            "validator",
+            "api",
+            "v4",
+            ""
+          ]
+        },
+        "description": "Run after cancellation to confirm subscription_status is cancelled/deactivated."
+      },
+      "response": []
+    }
+  ]
+}

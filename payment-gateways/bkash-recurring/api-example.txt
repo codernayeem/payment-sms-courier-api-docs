@@ -1,0 +1,371 @@
+1
+RPP Sample Request
+Step 1: Create Subscription
+Create Subscription URL: https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription
+Request:
+curl --location --
+request POST 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "amount": 10,
+ "amountQueryUrl": null,
+ "firstPaymentAmount": null,
+ "firstPaymentIncludedInCycle": true,
+ "serviceId": 100001,
+ "currency": "BDT",
+ "startDate": "2021-10-18",
+ "expiryDate": "2021-10-20",
+ "frequency": "DAILY",
+ "subscriptionType": "BASIC",
+ "maxCapAmount": null,
+ "maxCapRequired": false,
+ "merchantShortCode": "YOUR_SHORT_CODE",
+ "payer": null,
+ "payerType": "CUSTOMER",
+ "paymentType": "FIXED",
+ "redirectUrl": "YOUR_CALLBACK_URL",
+ "subscriptionRequestId": "Merchant02-SB11934746878", // Must be Unique.
+ "subscriptionReference": "MSMSR2",
+ "extraParams": null
+}'
+Response:
+{
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "redirectURL": "https://intent.sbrecurring.pay.bka.sh/intent/web/intent/5X2Z5BA
+R",
+ "expirationTime": "2021-10-18T08:21:32.292214Z",
+ "timeStamp": "2021-10-18T08:11:32.307233Z"
+}
+2
+Step 2: Query Subscription & Payment after successful callback (Must be implemented)
+Query By Subscription Request ID URL:
+https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/request-id/Merchant02-SB11934746878
+A merchant needs to call this API after redirecting to a success callback to check the status of the subscription.
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/reque
+st-id/Merchant02-SB11934746878' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+{
+ "id": 1037, // Subscription ID
+ "createdAt": "2021-10-18 08:11:32",
+ "modifiedAt": "2021-10-18 08:12:45",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "requesterId": 4,
+ "serviceId": 100001,
+ "paymentType": "FIXED",
+ "subscriptionType": "BASIC",
+ "amountQueryUrl": null,
+ "amount": 10.00,
+ "firstPaymentAmount": null,
+ "maxCapRequired": false,
+ "maxCapAmount": null,
+ "frequency": "DAILY",
+ "startDate": "2021-10-18",
+ "expiryDate": "2021-10-20",
+ "merchantId": 4,
+ "payerType": "CUSTOMER",
+ "payer": "01770618575",
+ "currency": "BDT",
+ "nextPaymentDate": "2021-10-19",
+ "status": "SUCCEEDED",
+ "subscriptionReference": "MSMSR2",
+ "extraParams": null,
+ "cancelledBy": null,
+ "cancelledTime": null,
+ "enabled": true,
+ "active": true,
+ "expired": false,
+ "rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20211020"
+}
+3
+Get Payment List Subscription ID URL:
+https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/bySubscriptionId/1037
+All payment information will be available as a list for a single subscription id. Merchant can call this to get the
+payment ID or any other reason. Also, it can be called for Query Payment to check the Payment status. Based
+on payment status merchant can update his system.
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/paymen
+t/bySubscriptionId/1037' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+[
+ {
+ "id": 1232,
+ "subscriptionId": 1037,
+ "dueDate": "2021-10-18",
+ "status": "SUCCEEDED_PAYMENT",
+ "trxId": "8JI4052ZDO",
+ "trxTime": "2021-10-18T08:12:45.380281",
+ "amount": 10.00,
+ "reverseTrxAmount": null,
+ "reverseTrxId": null,
+ "reverseTrxTime": null
+ }
+]
+Get Payment Info By Payment ID URL:
+https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/1232
+Merchant can call this API to get the details of a specific Payment ID. Based on payment status merchant can
+update his system.
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/paymen
+t/1232' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+4
+Response:
+{
+ "id": 1232,
+ "subscriptionId": 1037,
+ "dueDate": "2021-10-18",
+ "status": "SUCCEEDED_PAYMENT",
+ "trxId": "8JI4052ZDO",
+ "trxTime": "2021-10-18T08:12:45.380281",
+ "amount": 10.00,
+ "reverseTrxAmount": null,
+ "reverseTrxId": null,
+ "reverseTrxTime": null
+}
+Step 3: Refund Payment
+Refund URL: https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/refund
+Request:
+curl --location --
+request POST 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payme
+nt/refund' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-18T08:29:56.436364Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "paymentId": "1232",
+ "amount": "10"
+}'
+Response:
+For Refund API, Merchant will only receive HTTP Status as OK. And after that, merchant will get the Webhook
+for Refund (success/fail)
+5
+Step 4: Cancel Subscription
+Cancel Subscription URL:
+https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/1037?reason=TestCancelSubscription
+Request:
+curl --location --
+request DELETE 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/10
+37?reason=TestCancelSubscription' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-09-25T11:20:50.348311Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+{
+ "subscriptionId": 1037,
+ "subscriptionStatus": "CANCELLED",
+ "message": null,
+ "instant": "2021-10-18T09:08:29.809985Z"
+}
+Step 5: Other APIs
+Query By Subscription ID URL: https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/1037
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/1037'
+\
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+{
+ "id": 1037,
+ "createdAt": "2021-10-18 08:11:32",
+ "modifiedAt": "2021-10-18 09:08:29",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "requesterId": 4,
+ "serviceId": 100001,
+ "paymentType": "FIXED",
+ "subscriptionType": "BASIC",
+6
+ "amountQueryUrl": null,
+ "amount": 10.00,
+ "firstPaymentAmount": null,
+ "maxCapRequired": false,
+ "maxCapAmount": null,
+ "frequency": "DAILY",
+ "startDate": "2021-10-18",
+ "expiryDate": "2021-10-20",
+ "merchantId": 4,
+ "payerType": "CUSTOMER",
+ "payer": "01770618575",
+ "currency": "BDT",
+ "nextPaymentDate": "2021-10-19",
+ "status": "CANCELLED",
+ "subscriptionReference": "MSMSR2",
+ "extraParams": {
+ "cancellationReason": "TestCancelSubscription"
+ },
+ "cancelledBy": "REQUESTER",
+ "cancelledTime": "2021-10-18 09:08:29",
+ "enabled": false,
+ "active": false,
+ "expired": false,
+ "rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20211020"
+}
+Subscription List URL: https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/1/2
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/1/2'
+\
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+{
+ "size": 2,
+ "totalElements": 162,
+ "totalPages": 81,
+ "content": [
+ {
+ "id": 1032,
+ "subscriptionRequestId": "Merchant02-SB119347464868",
+7
+ "merchantId": 4,
+ "merchantShortCode": null,
+ "payer": null,
+ "amount": 30.00,
+ "startDate": "2021-10-13",
+ "expiryDate": "2021-10-20",
+ "frequency": "DAILY",
+ "status": "INITIALIZED",
+ "cancelledBy": null,
+ "cancelledTime": null
+ },
+ {
+ "id": 1031,
+ "subscriptionRequestId": "Merchant02-SB11934746488",
+ "merchantId": 4,
+ "merchantShortCode": null,
+ "payer": null,
+ "amount": 30.00,
+ "startDate": "2021-10-13",
+ "expiryDate": "2021-10-20",
+ "frequency": "DAILY",
+ "status": "INITIALIZED",
+ "cancelledBy": null,
+ "cancelledTime": null
+ }
+ ],
+ "currentPage": 1
+}
+Get Payment Schedule URL:
+https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/schedule?frequency=CALENDAR_
+MONTH&startDate=2022-01-01&expiryDate=2022-12-01
+Request:
+curl --location --
+request GET 'https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/paymen
+t/schedule?frequency=CALENDAR_MONTH&startDate=2022-01-01&expiryDate=2022-12-01' \
+--header 'version: v1.0' \
+--header 'channelId: Merchant WEB' \
+--header 'timeStamp: 2021-08-24T12:04:31.353163Z' \
+--header 'x-api-key: YOUR_APP_KEY' \
+--header 'Content-Type: application/json'
+Response:
+{
+ "count": 12,
+ "dates": [
+ "2022-01-01",
+ "2022-02-01",
+8
+ "2022-03-01",
+ "2022-04-01",
+ "2022-05-01",
+ "2022-06-01",
+ "2022-07-01",
+ "2022-08-01",
+ "2022-09-01",
+ "2022-10-01",
+ "2022-11-01",
+ "2022-12-01"
+ ]
+}
+Frequency:
+"DAILY",
+"WEEKLY",
+"FIFTEEN_DAYS",
+"THIRTY_DAYS",
+"NINETY_DAYS",
+"ONE_EIGHTY_DAYS",
+"CALENDAR_MONTH",
+"CALENDAR_YEAR"
+9
+Webhook Payload
+Subscription Webhook Request:
+{
+ "message": null,
+ "timeStamp": "2021-10-18T08:12:45.376484Z",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "subscriptionId": 1037,
+ "subscriptionStatus": "SUCCEEDED",
+ "nextPaymentDate": "2021-10-18",
+ "amount": null,
+ "trxId": null,
+ "trxDate": null
+}
+Subscription Payment Webhook Request:
+{
+ "message": null,
+ "timeStamp": "2021-10-18T08:12:46.522116Z",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "paymentId": 1232,
+ "paymentStatus": "SUCCEEDED_PAYMENT",
+ "subscriptionId": 1037,
+ "trxId": "8JI4052ZDO",
+ "amount": 10,
+ "dueDate": "2021-10-18",
+ "nextPaymentDate": "2021-10-19",
+ "trxDate": "2021-10-18T08:12:45",
+ "firstPayment": false
+}
+Refund Webhook Request:
+{
+ "message": null,
+ "timeStamp": "2021-10-18T09:00:25.871816Z",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "paymentId": 1232,
+ "paymentStatus": "FAILED_REFUND",
+ "subscriptionId": 1037,
+ "reverseTrxId": "8JI7052ZPF",
+ "refundedAmount": 10,
+ "reversTrxDate": "2021-10-18T09:00:09",
+ "firstPayment": false
+}
+10
+Cancel Subscription Webhook Request:
+{
+ "message": null,
+ "timeStamp": "2021-10-18T09:08:29.815136Z",
+ "subscriptionRequestId": "Merchant02-SB11934746878",
+ "subscriptionId": 1037,
+ "subscriptionStatus": "CANCELLED",
+ "cancelledBy": "Requester"
+}

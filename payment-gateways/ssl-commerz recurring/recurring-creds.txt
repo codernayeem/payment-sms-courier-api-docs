@@ -1,0 +1,8 @@
+Dear Concern, 
+
+As communicated, please find the Refer id and salt key below. 
+
+Salt: <<<SSLCOMMERZ_RECURRING_SALT>>>
+Refer: <<<SSLCOMMERZ_RECURRING_REFER>>>
+
+Thanks & Regards,

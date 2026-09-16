@@ -1,0 +1,20 @@
+Ecom UAT Checklist:
+===================
+
+Please make Payments in following Pattern and share the Screen Recording.
+1. Regular Payment
+2. Payment with Wrong PIN 4 times
+3. Payment with Wrong OTP 4 Time
+4. Open Payment Gateway and Click on Close Button
+5. Payment with Exceed balance of your wallet. For example: If you have 100taka balance in your wallet, try to make payment with more than 100 taka
+
+Also please confirm the following.
+1. Proper error Handling at your end.
+2. Refund Policy.
+3. Storing the ‘issuer_payment_ref’ and ‘payment_ref_id values at your end.
+
+
+1. Yes, we have proper error handling in our backend.
+2. We currently do not have any refund options.
+3. Yes we do store ‘issuer_payment_ref’ and ‘payment_ref_id' at our end.
+

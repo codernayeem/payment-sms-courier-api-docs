@@ -1,0 +1,17 @@
+sslcommerz Live api Store Name	<<<SSLCOMMERZ_STORE_NAME>>>
+Transaction Session API	https://securepay.sslcommerz.com/gwprocess/v4/api.php
+Validation URL (By SOAP)	https://securepay.sslcommerz.com/validator/api/validationserverAPI.php?wsdl
+Validation URL (By REST)	https://securepay.sslcommerz.com/validator/api/validationserverAPI.php
+ 	 
+Store ID	<<<SSLCOMMERZ_STORE_ID>>> (It is required at redirection and payment validation)
+Store Password	<<<SSLCOMMERZ_STORE_PASSWORD>>> (It is required at payment validation.Note: No need to change the store password.)
+Registered Store URL	<<<STORE_URL>>>
+ 	 
+Developer Page	https://developer.sslcommerz.com/
+
+
+
+Test:
+testbox
+qwerty
+https://sandbox.sslcommerz.com

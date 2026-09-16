@@ -1,0 +1,8 @@
+Thank you for your email and for validating the shared sandbox test results. Please find the requested details below:
+
+Merchant Wallet Number: [Merchant Wallet Number]
+PGW Display Name: <<<MERCHANT_DISPLAY_NAME>>>
+Email Address (for production URL & credentials): [EMAIL]
+Logo URL (HTTPS): https://<<<MERCHANT_DOMAIN>>>/assets/MerchantName.png
+
+Kindly proceed with the production credential issuance and URL configuration.

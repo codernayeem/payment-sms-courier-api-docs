@@ -1,0 +1,1748 @@
+THIS IS A COPY PASTE FROM PDF. EXPECT SOME TEXT BREAKING.
+
+
+1 | P a g e
+bKash Recurring Payment
+Integration Guide [V 2.1.2]
+2 | P a g e
+Contents
+Recurring Payment Platform................................................................................................................3
+Customer Interaction Flow...................................................................................................................3
+Subscription Creation Steps.................................................................................................................6
+Cycle payment: ...................................................................................................................................9
+Subscription Cancellation...................................................................................................................11
+Create Subscription...........................................................................................................................13
+Create...........................................................................................................................................13
+Request Body.............................................................................................................................14
+Response...................................................................................................................................17
+Webhook Notification .......................................................................................................................19
+Subscription Webhook Request......................................................................................................20
+Request Body.............................................................................................................................20
+Subscription Payment Webhook Request........................................................................................23
+Request Body.............................................................................................................................23
+Refund Webhook Request..............................................................................................................27
+Refund Webhook Request Body..................................................................................................27
+Cancel Subscription Webhook Request...........................................................................................30
+Cancel Webhook Request Body...................................................................................................31
+Expiry Webhook Response Body.....................................................................................................32
+Payment Reminder (Pre-Notification) Web hook Response Body......................................................34
+Subscription Query (Subscription Get Request)...................................................................................35
+Subscription Query using subscription ID ........................................................................................35
+Subscription List (Subscription List Request)........................................................................................40
+Subscription List Request Body ...................................................................................................40
+Payment List (Payment List Request)..................................................................................................44
+Payment List Request Body.........................................................................................................45
+Cancel Subscription using subscription ID ...........................................................................................47
+Subscription Refund ..........................................................................................................................49
+Errors ...............................................................................................................................................51
+3 | P a g e
+Recurring Payment Platform
+Merchant system will connect to bKash Recurring Payment platform via APIs. When a user initiates a
+subscription payment in their system, merchant will send request to bKash with the payment details.
+bKash will then provide a secure payment page where the customer will give consent for the entire
+subscription by providing and verifying their account information. Recurring Payment Platform will set
+up and maintain the payment subscription, and at the agreed cycle time, deduct the agreed amount
+from the customer’s bKash account.
+Customer Interaction Flow
+1. Select subscription at merchant website/app
+2. Agree terms and conditions
+4 | P a g e
+3. Enter wallet number
+
+4. Enter OTP
+
+5 | P a g e
+5. Enter PIN
+6. Complete the customer validation steps and redirect to merchant site/APP
+
+6 | P a g e
+Subscription Creation Steps
+1. A customer can sign up for a subscription in a merchant’s platform (Website/ App)
+2. Customer will see subscription packages including following information in merchant’s platform
+-
+ Payment cycle
+ Amount per payment cycle
+ Start Date
+ End date
+Note:
+- We are providing several payment cycles such as daily, 7 days, 15 days, 30 days, 90 days, 180
+days, calendar month and calendar year. However, it will be the merchant who will determine
+which cycle to use for a particular subscription and will only display those particular cycle
+options.
+- Start date can be same day of subscription signup. If merchant is willing to provide the service
+right after the subscription, they can configure subscription sign up date as the start date of
+payment.
+- Merchant system will provide the end date of each payment subscription based on their
+agreement with their customer. End date can start from the following day after start date and
+be up to a maximum of 2 years from start date.
+3. In order to subscribe for a service, customer will first choose a subscription
+4. Next, merchant platform will initiate a subscription request to bKash via API
+5. bKash secure payment page will open within merchant platform UI and bKash system will
+redirect customer to a consent link.
+6. Customer will be able to view the terms & condition of creating a subscription first.
+7 | P a g e
+7. After agreeing to terms & conditions, the secure payment
+page will display the fixed criteria that the customer has agreed to the merchant page while
+proceeding - Amount, Start Date, End Date, Cycle, Next Date, Next Amount and Total No. of
+Payments.
+8. Then one after one, customer will enter bKash wallet number, OTP and bKash PIN to give
+consent for the entire subscription so that bKash can debit that particular customer account
+during each cycle without needing repeated consent throughout the subscription period
+Note:
+bKash system checks validation for customer as per following:
+- Registered bKash customer account
+- Identity & account status ‘Active’
+- No state tag is restricting debit transaction
+9. bKash system will set up subscription in its own subscription engine
+10. bKash will provide notification of subscription set up to both customer (through SMS) and
+merchant (through webhook).
+11. After successful subscription, customer will be redirected to merchant’s platform i.e. website/
+App
+12. bKash system will have a log of each subscription
+8 | P a g e
+Flow: System interaction flow between merchant and bKash
+9 | P a g e
+Cycle payment:
+Payment Flow:
+1. bKash system will send a notification before payment date as per the following schedule.
+Cycle Pre-Payment
+Notification Day
+Daily N/A
+7 Days 1
+15 Days 2
+30 Days 3
+90 Days 3
+180 Days 3
+Monthly 3
+Yearly 3
+2. Payment will be automatically initiated by bKash system at each cycle. For example, if
+subscription was set up as monthly, with starting date of 5 June, then payment will automatically
+be made on 5th of each month.
+3. If payment is successful, both customer and merchant will be sent successful notifications.
+4. If payment fails, customer will be notified of payment failure through SMS and merchant will
+receive webhook notification.
+5. In case of failed payment, bKash system will retry payment as per the following policy.
+Cycle Pre-notification day No. of Retrial Retrial Period
+Daily N/A N/A N/A
+7 Days 1 1 2 Days After Pay Date
+10 | P a g e
+15 Days 2 2 Every 3 Days After Pay Date
+30 Days 3 2 Every 3 Days After Pay Date
+90 Days 3 2 Every 3 Days After Pay Date
+180 Days 3 2 Every 3 Days After Pay Date
+Monthly 3 2 Every 3 Days After Pay Date
+Yearly 3 2 Every 3 Days After Pay Date
+ ** Merchant will get notification for each retrial attempt.
+6. If payment still fails, merchant will need to manage the payment of that particular cycle with
+customer directly.
+7. bKash system will continue with regular subscription payment from the next cycle.
+11 | P a g e
+Subscription Cancellation
+Customer Initiated
+A. From Merchant’s Website/App:
+1. If a customer is willing to cancel any of his/her existing subscription, s/he will be able to do so on the
+merchant’s website/App
+2. User will log into the merchant’s website/App, go the subscribed services and select ‘Cancel
+Subscription’. This is an example of the most simplified process of cancellation for any subscription.
+This process might vary from merchant to merchant
+3. After receiving the cancelation request, merchant will forward the request to bKash immediately
+4. Once received, bKash system will execute the request automatically.
+12 | P a g e
+5. After successful cancellation, both merchant and customer
+will be notified B. From bKash Customer Service:
+• If a customer is willing to cancel any of his/her existing subscription, and for some reason cannot get
+it canceled through his/her merchant, s/he can do so by calling bKash customer care
+• CS will validate the customer’s identity in their usual process
+• Upon necessary validation, CS will search by customer account number in CIMT portal
+• CIMT System will show all the subscription under that customer account, and will show the
+subscription
+ID, start date, end date, amount, frequency, status (active/ended/canceled)
+CS will cancel subscription in CIMT
+13 | P a g e
+Create Subscription
+Create
+To initiate subscription, merchant can call create subscription API to communicate with bKash
+API. JSON data should be provided during this API call.
+METHOD URL
+POST /api/subscription
+TYPE Data Type Mandatory/
+Optional
+PARAMETERS Sample Values Description
+HEAD String M version v1.0 Version Number
+indicates the interface
+version.
+HEAD Number M channelId Customer APP Channel Id indicates
+channel by which user
+initiated the request.
+1: Customer APP
+2: Merchant WEB
+HEAD Instant M timeStamp 2021-02-
+08T09:16:28.603855Z
+UTC Instant
+HEAD String M x-api-key API Key
+HEAD String M Content-Type application/json The Content-Type
+representation header
+is used to indicate the
+original media type of
+the resource
+POST
+BODY
+M Request Body
+(below)
+Part of a post request
+14 | P a g e
+Request Body
+Data Parameter
+Type
+Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String subscriptionRequestId M <1sagsadfa
+ssddasdfsd
+fasdfgda >
+UNIQUE VALUE System
+generated unique
+id
+Number serviceId M <1> Subject to
+updated over
+time.
+Provided by
+bKash
+String redirectURL M <string> Mandatory for
+merchants
+Provided by
+merchant
+String paymentType M [FIXED] Indicates
+recurring
+payment type
+String subscriptionType M [BASIC] Basic or With
+Payment
+BASIC - indicates
+only scheduled
+payment and
+WITH_PAYMENT
+- indicates a
+mandatory
+immediate
+payment for
+subscription
+creation
+Decimal amount M <35> Amount that will
+be recurrently
+paid
+15 | P a g e
+Decimal firstPaymentAmount O <Decimal> Mandatory when
+WITH_PAYMENT
+Amount needs to
+be paid when
+subscription is
+created for the
+first time
+String currency M [BDT] Currency of the
+Payment
+Boolean firstPaymentIncludedInCycle O <Boolean> Value – 0 [If this
+payment is not
+part of the
+payment]
+Value – 1 [If this
+payment is part
+of the payment]
+If subscription
+has first payment
+during
+registration
+Decimal maxCapAmount O <5000> Maximum value
+of a payment
+String frequency M <WEEKLY> Available cycles
+for each
+subscriptions
+DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+ONE_EIGHTY_DA
+YS
+CALENDAR_MON
+TH
+CALENDAR_YEAR
+16 | P a g e
+String startDate M 2021-04-10 ISO 8601 Date
+Format
+Start date of a
+subscription.
+From this date,
+payment
+deduction will
+take place
+String expiryDate M 2025-04-10 ISO 8601 Date
+Format
+Expiry date of a
+subscription.
+After this date,
+no payment will
+take place.
+String merchantShortCode O <Idlc> Unique Code for
+Merchant
+Provided by
+bKash
+String payerType M <CUSTOME
+R>
+Indicates Payer
+Type whether it is
+Customer or any
+partner
+organization
+String payer M <01870725
+511>
+Wallet ID of a
+customer
+String subscriptionReference M <string> The subscription
+reference shared
+by merchant to
+refer to the
+subscription
+service
+Paramet
+ers
+extraParams O Multiple Data as
+key, value format.
+Indicates the
+dynamic
+parameters. To
+capture the extra
+parameter for
+recurring
+payment.
+17 | P a g e
+Response
+Type Data Type Parameters Sample Values Remarks
+ACCEPT Content-Type application/json
+JSON
+String subscriptionRequestId
+<string> Subscription session id
+from request
+JSON
+String redirectURL
+<string> Redirect the customer to
+the redirect_url to get user
+consent for this
+subscription
+JSON
+String expirationTime
+string($date) Timestamp giving the
+expiration date of this
+subscription (if any)
+JSON
+Instant timeStamp
+<date> Timestamp for when the
+subscription period
+(if any) began
+18 | P a g e
+Response [Failed]: JSON
+Type Data Type Parameters Sample Values Remarks
+ACCEPT Content-Type application/json
+JSON
+String subscriptionRequestId
+<string> Subscription session id
+from request
+JSON
+String errorCode
+<string> Indicate result code
+JSON
+String errorDescription
+<string> Indicate result
+description
+RESPONSE EXAMPLE:
+{
+“subscriptionRequestId": "MerchantPROD0014",
+"redirectURL": "https://intent.recurring.pay.bka.sh/intent/web/intent/BTCCXTJF",
+"expirationTime": "2021-07-11T04:29:29.801417Z",
+"timeStamp": "2021-07-11T04:19:30.067816Z"
+}
+19 | P a g e
+Webhook Notification
+Notifications must be verified to make sure a notification is indeed from bKash and not from a malicious
+source.
+Here you have a signature, payload, and api_key and you want to verify the signature.
+For example:
+payload = '{"message":null,"timeStamp":"2021-04-
+19T10:08:22.267540Z","subscriptionRequestId":"573a44e6-5686-465a868ce7571b0233b1","paymentId":73,"paymentStatus":"SUCCEEDED_PAYMENT","subscriptionId":40,"tr
+xId": "8DJ9022ZD7","amount":51.00,"dueDate":"2021-04-19","nextPaymentDate":"2021-04-
+26","trxDate":"2021-04-19T16:08:22","firstPayment":true}'; signature
+= "VL5Qow6bpQQnhHIYzf35rs5nssCGRc-Hih6I61ZC8jY=" api_key =
+"3EbBE-L30-PEDU-KjkhxpEop8SYsanOa"
+Signature decryption Steps: Verify the payloads that bKash sends to your webhook endpoints,
+following python examples can be applied:
+• Decode the base64-encoded header X-Signature to get the signature signature =
+base64.urlsafe_b64decode(signature)
+• Decode the base64-encoded api_key to get the key.
+key = base64.urlsafe_b64decode(api_key)
+• Generate hmac digest (using sha256 hashing) of the payload using the key digest =
+hmac.new(key=key, msg=payload, digestmod=hashlib.sha256).digest()
+• Compare the digest data with signature (hmac.compare_digest(digest, signature)
+20 | P a g e
+Subscription Webhook Request
+Post Method
+TYPE Data Type Mandatory/
+Optional
+Parameters Sample Values Remarks
+HEAD String M Signature <Hash value> Encrypted, Signature
+should be match
+HEAD String M Type <Payment> Possible values:
+SUBSCRIPTION,
+PAYMENT,
+REFUND
+POST
+BODY
+M Request Body
+(below)
+Part of a post request
+Request Body
+Data Type Parameter Mandatory Sample Remarks Description
+/Optional Value
+String subscriptionRequestId M
+<
+TraggSB00108>
+Provided by bKash
+Number subscriptionId
+M <141>
+UNIQUE
+VALUE
+The unique identifier
+for the associated
+Subscription
+21 | P a g e
+String subscriptionStatus
+M < VERIFIED> INITIALIZED:
+Subscription creation
+request received by
+MW
+VERIFIED: IF
+requester is trusted, it
+will be VEIRIFIED
+instantly, if untrusted
+after pin verification
+SUCCEEDED:
+Payment completed
+successfully
+FAILED: Payment
+failed or pin
+verification failed
+CANCELLED:
+Cancelled by
+requester or admin
+Decimal Amount
+O [Decimal] Amount that will be
+recurrently paid.
+String trxId
+O <string> The unique
+identifier for
+the
+Transaction
+Provided by bKash
+String trxDate
+O string($date) Will be
+present when
+subscription
+creation
+The date indicating
+when the Transaction
+was done
+String
+nextPaymentDate
+M 2021-07-14 ISO 8601 Date
+Format
+Next payment date of
+the subscription
+period
+22 | P a g e
+Instant timeStamp
+M 2021-
+0714T11:24:28.67
+7781Z
+Timestamp
+when this
+request is
+generated
+Timestamp indicating
+when the Transaction
+was created
+String
+payer
+M 01832353841 Senders
+Wallet
+Number
+The Wallet which will
+be deducted for
+subscription
+String
+frequency
+M CALENDAR_MONTH Available
+cycles for
+each
+subscriptions
+DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+ONE_EIGHTY_DAYS
+CALENDAR_MON
+TH
+CALENDAR_YEAR
+Note: * All Webhooks Request will be initiated from RPP * Just send HTTP Code 200 or 202 if you
+successfully received it. Otherwise send relevant HTTP Error Code Sample Payload:
+ {
+"message": null,
+ "timeStamp": "2021-07-14T11:24:28.677781Z",
+ "subscriptionRequestId": "TraggSB00108",
+ "subscriptionId": 141,
+ "subscriptionStatus": "SUCCEEDED",
+ "nextPaymentDate": "2021-07-14",
+ "amount": null,
+ "trxId": null,
+"trxDate": null,
+"payer": “01832353841”,
+"frequency":“CALENDAR_MONTH”
+}
+23 | P a g e
+Subscription Payment Webhook Request
+Post Method
+TYPE Data Type Mandatory/
+Optional
+Parameters Sample Values Remarks
+HEAD String M Signature <Hash value> Encrypted, Signature
+should be match
+HEAD String M Type <Payment> Possible values:
+SUBSCRIPTION,
+PAYMENT,
+REFUND
+POST
+BODY
+M Request Body
+(below)
+Part of a post request
+Request Body
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String subscriptionRequestId M <TraggSB00107> Provided by bKash
+Number
+paymentId M <438>
+UNIQUE
+VALUE
+The unique identifier
+for the payment
+24 | P a g e
+String paymentStatus
+M <INITIALIZED > Possible values:
+INITIALIZED,
+PROCESSING_PAYME
+NT,
+PROCESSING_REFUND
+,
+SUCCEEDED_PAYMEN
+T,
+SUCCEEDED_REFUND,
+FAILED_PAYMENT,
+FAILED_REFUND,
+RE_SUCCEEDED_PAY
+MENT,
+RE_SUCCEEDED_REFU
+ND,
+RE_FAILED_PAYMENT,
+RE_FAILED_REFUND,
+RE_NOT_FOUND_PAY
+MENT,
+RE_NOT_FOUND_REF
+UND
+Boolean
+firstPayment
+M <Boolean>
+If subscription has first
+payment during
+registration
+Number
+subscriptionId
+M <140> UNIQUE
+VALUE
+The unique identifier
+for the associated
+Subscription
+25 | P a g e
+Decimal amount
+M <30>
+Payable
+amount per
+cycle
+Amount that will be
+recurrently paid.
+String trxId
+M <8GC004U54M> The unique
+identifier for
+the
+Transaction
+Provided by bKash
+String dueDate
+M 2021-07-12
+ISO 8601 Date
+Format
+Due date when
+payment supposed to
+deduct
+String trxDate
+M 2021-07-
+12T05:16:18
+Will be
+present when
+subscription
+creation
+The date indicating
+when the Transaction
+was done
+String
+nextPaymentDate
+M 2021-07-13 ISO 8601 Date
+Format
+Next payment date of
+the subscription
+period
+Instant timeStamp
+M 2021-
+0712T05:16:23.90
+5207Z
+Timestamp
+when this
+request is
+generated
+Timestamp indicating
+when the Transaction
+was created
+String
+payer
+M 01832353841 Senders
+Wallet
+Number
+The Wallet which will
+be deducted for
+subscription
+26 | P a g e
+String
+frequency
+M CALENDAR_MONTH Available
+cycles for each
+subscriptions
+DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+ONE_EIGHTY_DAYS
+CALENDAR_MON
+TH
+CALENDAR_YEAR
+Sample Payload:
+{
+ "message": null,
+ "timeStamp": "2021-07-12T05:16:23.905207Z",
+ "subscriptionRequestId": "TraggSB00107",
+ "paymentId": 438,
+ "paymentStatus": "SUCCEEDED_PAYMENT",
+ "subscriptionId": 140,
+"trxId": "8GC004U54M",
+ "amount": 1,
+ "dueDate": "2021-07-12",
+ "nextPaymentDate": "2021-07-13",
+ "trxDate": "2021-07-12T05:16:18",
+ "firstPayment": false
+"payer": “01832353841”,
+"frequency":“CALENDAR_MONTH”
+}
+27 | P a g e
+Refund Webhook Request
+Post Method
+TYPE Data Type Mandatory/
+Optional
+Parameters Sample Values Remarks
+HEAD String M Signature <Hash value> Encrypted, Signature
+should be match
+HEAD String M Type < REFUND> Possible values:
+SUBSCRIPTION,
+PAYMENT,
+REFUND
+POST
+BODY
+M Request Body
+(Below)
+Part of a post request
+Refund Webhook Request Body
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String subscriptionRequestId M <TraggSB00108> Provided by bKash
+Number
+paymentId M <444>
+UNIQUE
+VALUE
+The unique identifier
+for the payment
+String paymentStatus
+M <INITIALIZED > Possible
+values:
+INITIALIZED,
+PROCESSING_
+PAYMENT,
+PROCESSING_
+INITIALIZED – means
+payment is still
+pending to process.
+28 | P a g e
+REFUND,
+SUCCEEDED_P
+AYMENT,
+SUCCEEDED_R
+EFUND,
+FAILED_PAYM
+ENT,
+FAILED_REFU
+ND,
+RE_SUCCEEDE
+D_PAYMENT,
+RE_SUCCEEDE
+D_REFUND,
+RE_FAILED_PA
+YMENT,
+RE_FAILED_RE
+FUND,
+RE_NOT_FOU
+ND_PAYMENT
+,
+RE_NOT_FOU
+ND_REFUND
+PROCESSING_PAYME
+NT – Payment
+processing is ongoing.
+PROCESSING_REFUND
+– Refund process is
+ongoing.
+SUCCEEDED_PAYMEN
+T – Payment has been
+deducted.
+SUCCEEDED_REFUND
+– Refund done
+successfully.
+FAILED_PAYMENT –
+Payment failed after
+retry.
+FAILED_REFUND –
+Refund failed
+Boolean
+firstPayment
+M <Boolean>
+If subscription has first
+payment during
+registration
+Number
+subscriptionId
+M <141> UNIQUE
+VALUE
+The unique identifier
+for the associated
+Subscription
+29 | P a g e
+String reverseTrxId
+M <8GE704UB7F > Refund
+transaction ID
+(If any refund)
+Provided by bKash
+Decimal refundedAmount
+M <10> The refunded amount
+merchant has
+requested (If any)
+String reverseTrxDate
+M
+2021-07-
+14T11:24:28
+Refund transaction
+date (If any refund)
+Instant
+Timestamp
+M 2021-
+0714T11:25:54.42
+6741Z
+Timestamp
+when this
+request is
+generated
+Timestamp indicating
+when the Transaction
+was created
+String
+payer
+M 01832353841 Senders Wallet
+Number
+The Wallet which will
+be deducted for
+subscription
+String
+frequency
+M CALENDAR_MONTH Available
+cycles for each
+subscriptions
+DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+ONE_EIGHTY_DAYS
+CALENDAR_MON
+TH
+CALENDAR_YEAR
+30 | P a g e
+Sample Payload:
+{
+ "message": null,
+ "timeStamp": "2021-07-14T11:25:54.426741Z",
+ "subscriptionRequestId": "TraggSB00108",
+ "paymentId": 444,
+ "paymentStatus": "SUCCEEDED_REFUND",
+ "subscriptionId": 141,
+ "reverseTrxId": "8GE704UB7F",
+ "refundedAmount": 1,
+ "reversTrxDate": "2021-07-14T11:24:28",
+ "firstPayment": false
+ "payer": “01832353841”,
+ "frequency":“CALENDAR_MONTH”
+}
+Cancel Subscription Webhook Request
+Post Method
+TYPE Data Type Mandatory/
+Optional
+Parameters Sample Values Remarks
+HEAD String M signature <Hash value> Encrypted, Signature
+should be match
+HEAD String M type <Payment> Possible values:
+SUBSCRIPTION,
+PAYMENT,
+REFUND
+POST
+BODY
+M Request Body
+(below)
+Part of a post request
+31 | P a g e
+Cancel Webhook Request Body
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String subscriptionRequestId M < TraggSB00108> Provided by bKash
+Number
+subscriptionId
+M <141> UNIQUE
+VALUE
+The unique identifier
+for the associated
+Subscription
+String subscriptionStatus
+M <CANCEELED> Subscription status
+String cancelledBy
+M < Requestor> Requestor –when
+cancelled by
+Merchant
+Instant
+timestamp
+M <2021-
+0714T11:27:34.46
+2238Z >
+Timestamp
+when this
+request is
+generated
+Timestamp indicating
+when the
+Transaction was
+created
+String
+payer
+M 01832353841 Senders
+Wallet
+Number
+The Wallet which will
+be deducted for
+subscription
+String
+frequency
+M CALENDAR_MONTH Available
+cycles for
+each
+subscriptions
+DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+ONE_EIGHTY_DAYS
+32 | P a g e
+CALENDAR_MON
+TH
+CALENDAR_YEAR
+Sample Payload:
+{
+ "message": null,
+ "timeStamp": "2021-07-14T11:27:34.462238Z",
+ "subscriptionRequestId": "TraggSB00108",
+ "subscriptionId": 141,
+ "subscriptionStatus": "CANCELLED",
+ "cancelledBy": "Requester"
+ "payer": “01832353841”,
+ "frequency":“CALENDAR_MONTH
+}
+Expiry Webhook Response Body
+This web hook notification will be initiated from the Recurring Platform. For any subscription reaches the
+“END TIME”, the platform will allocate the subscription and trigger the web hook response to the
+designated aggregator.
+The parameter details and sample payload are provided below:
+Data
+Type
+Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String Message M <Null> Provided by bKash
+Instant
+Time Stamp
+M <2023-02-
+07T06:16:52.084708Z>
+Timestamp
+when this Web
+hook is sent
+Event Time & Date
+of the Subscription
+Expiration web
+hook Sent from
+MW
+String SubscriptionRequestId
+M < AAA102>
+System
+generated UID
+Special Identifier of
+the subscription
+request
+33 | P a g e
+Number
+subscriptionId
+M <12> Unique Value Unique Identifier of
+the Associated
+subscription
+String
+subscriptionStatus
+M <EXPIRED> Subscription
+Status
+Status of
+Subscription after
+Expiration
+String
+lastSucceededPayment
+M <2022-12-29 > Last Successful
+Payment
+Deduction Date
+Date of Last
+Successful payment
+Deducted from the
+user before the
+subscription was
+EXPIRED
+String
+Frequency
+M <
+CALENDAR_MONTH>
+Subscription
+Cycle
+Type of
+Subscription
+Deduction CYCLE
+String
+creationTimestamp
+M <2022-11-
+29T05:14:16Z>
+Subscription
+Creation Time
+Stamp
+The time & date
+when the
+subscription was
+created in RPP
+Number
+payer
+M <01832353841> Wallet number The wallet from
+where the amount
+was deducted
+Response Payload Sample:
+{
+ "message": null,
+"timeStamp": "2023-02-07T06:16:52.084708Z",
+"subscriptionRequestId": "AAA102",
+"subscriptionId": 72,
+"subscriptionStatus": "EXPIRED",
+"lastSucceededPayment": "2022-12-29",
+"frequency": "CALENDAR_MONTH",
+"creationTimestamp": "2022-11-29T05:14:16Z"
+ "payer": "01832353841"
+}
+34 | P a g e
+Payment Reminder (Pre-Notification) Web hook
+Response Body
+The Payment Reminder option was a pre-existing feature which was sent through SMS. Now we are
+introducing this web hook notification. For any subscription that reaches the “Payment Date”, based on
+configuration of Pre-Notification, the platform will allocate the subscription and trigger the web hook
+response to the designated aggregator.
+Currently the web hook facility can be availed besides the SMS triggering facility. Designated aggregator
+can have the option to choose the Web hook or the SMS or both.
+The parameter details and sample payload are provided below:
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+String Message M <Null>
+Provided by
+bKash
+Instant
+Time Stamp
+M <2023-02-
+07T06:16:52.084708Z>
+Timestamp
+when this
+Web hook is
+sent
+Event Time &
+Date of the
+Subscription
+Expiration web
+hook Sent from
+MW
+String RequesterId
+M < 170 >
+System
+generated
+UID
+Special Identifier
+of the
+subscription
+request
+String subscriptionRequestId
+M <099ecd0cd4e64793b
+7399b07ad288d1c>
+Unique
+Value
+Unique Identifier
+of the Associated
+subscription
+String subscriptionId
+M <6092> Unique
+Value
+Unique Identifier
+of the Associated
+subscription
+String
+subscriptionStatus
+M <SUCCEEDED> Subscription
+Status
+Status of
+Subscription
+String
+nextPaymentDate
+M <2022-12-29 > Upcoming
+date of
+Payment
+Date of NEXT
+payment to be
+Deducted based
+on Frequency
+35 | P a g e
+Number
+Payer
+M <01832353841> Wallet
+number
+The wallet
+number which the
+amount would be
+deducted
+String
+Frequency
+M <CALENDAR_MONTH> Subscription
+Cycle
+Type of
+Subscription
+Deduction CYCLE
+Number
+amount
+M <5> Deducted
+amount
+Amount which
+was deducted on
+each subscription
+Response Payload Sample
+{
+"message": null,
+"timeStamp": "2023-02-16T05:00:04.475985Z",
+"requesterId": 170,
+"subscriptionRequestId": "099ecd0cd4e64793b7399b07ad288d1c",
+"subscriptionId": 6092,
+"subscriptionStatus": "SUCCEEDED",
+"nextPaymentDate": "2023-02-17",
+"payer": "01847263866",
+"frequency": "CALENDAR_MONTH",
+"amount": 5
+}
+Subscription Query (Subscription Get Request)
+Subscription Query using subscription ID
+Merchant can also call for details of a single subscription by its ID to get latest status.
+METHOD URL
+GET /api/subscriptions/<subscriptionId>
+TYPE Data Type PARAMETERS Sample Value Remarks
+HEAD
+String Version
+V.01
+The version number is used to
+control the system version of both
+parties. In case one party upgrades
+the system, the other party will
+36 | P a g e
+Recognize it via the version No.to
+avoid abnormal transaction.
+HEAD
+Number channelId
+<Customer APP> Initiation channel of user requests.
+Subject to updated with time.
+Customer APP
+Merchant WEB
+HEAD
+Instant timestamp
+Will be used to combat replay attack
+HEAD String Content-Type application/json Content Type of request parameters
+HEAD String X-API-KEY <string> API key to maintain authentication
+between bKash and merchant
+servers.
+PATH subscriptionId integer Subscription ID fetched from
+execute subscription API.
+Response: JSON
+Data Type Parameters Sample Values Remarks
+Number Id <105> Encapsulated in data
+params
+Number requesterId Id of merchant
+String subscriptionRequestId < TraggPROD03> System generated
+unique id
+String Status <INITIALIZED> INITIALIZED,
+VERIFIED,
+SUCCEEDED,
+FAILED,
+CANCELLED
+37 | P a g e
+String createdAt 2021-07-11 05:23:23 Indicates subscription
+creation date
+String modifiedAt TimeStamp
+Number Serviced 100001 bKash provided
+String redirectURL Dynamic part of the
+URL. Fixed part will be
+predefined & pre
+shared. After payer
+authentication
+Recurring Payment
+middleware will
+redirect the customer
+to the callback URL.
+String paymentType <FIXED> Indicates recurring
+payment
+type
+String subscriptionType <BASIC> Indicates which type
+of subscription:
+BASIC
+WITH_PAYMENT
+Decimal amount <decimal> Amount that will be
+recurrently paid
+Decimal firstPaymentAmount <decimal> First payment amount
+String Frequency <WEEKLY> DAILY
+WEEKLY
+FIFTEEN_DAYS
+THIRTY_DAYS
+NINETY_DAYS
+38 | P a g e
+ONE_EIGHTY_DAYS
+CALENDAR_MONTH
+CALENDAR_YEAR
+String startDate String($date) ISO 8601 Date
+Format
+String expiryDate String($date) ISO 8601 Date
+Format
+String merchantId Unique Code for
+Merchant
+Provided by bKash
+String payerType <CUSTOMER>
+String Payer <string> Wallet ID of the
+payer
+String Currency <BDT>
+String subscriptionReference < TAGG > Payment Unique
+Reference
+Parameters extraParams <null> Multiple Data as
+key, value format.
+String cancelledBy
+<null> Contains name of
+the entity who
+cancelled the
+subscription
+String cancelledTime
+<null> Timestamp of
+cancel event
+Boolean Expired
+<false> Denotes
+subscriptions
+expiration state
+Boolean Enabled
+<true> Denotes that
+subscription is
+active, i.e. in
+enabled state
+39 | P a g e
+String Rrule
+<FREQ=DAILY;INTERVAL=1;UNTIL=20210712> recurrent rule of
+subscription
+Boolean Active
+[true] enabled and not
+expired
+String
+nextPaymentDate
+2021-07-12 ISO 8601 Date
+Format
+RESPONSE EXAMPLE:
+{
+ "id": 105,
+"createdAt": "2021-07-11 05:23:23",
+"modifiedAt": "2021-07-11 05:23:27",
+"subscriptionRequestId": "TraggPROD03",
+"requesterId": 5,
+"serviceId": 100001,
+"paymentType": "FIXED",
+"subscriptionType": "WITH_PAYMENT",
+"amountQueryUrl": null,
+"amount": 1.00,
+"firstPaymentAmount": 2.00,
+"maxCapRequired": false,
+"maxCapAmount": null,
+"frequency": "DAILY",
+"startDate": "2021-07-11",
+"expiryDate": "2021-07-12",
+"merchantId": 3,
+"payerType": "CUSTOMER",
+"payer": "01844165554",
+"currency": "BDT",
+"nextPaymentDate": "2021-07-12", "status":
+"SUCCEEDED",
+"subscriptionReference": "TAGG",
+"extraParams": null,
+"cancelledBy": null,
+"cancelledTime": null,
+"expired": false, "enabled": true,
+"rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20210712",
+"active": true
+}
+40 | P a g e
+Subscription List (Subscription List Request)
+Merchant can also call for details of a list of subscription
+METHOD URL
+GET /api/subscriptions/{page}/{size}
+TYPE Data Type PARAMETERS Sample Value Remarks
+HEAD
+String Version
+V.01 The version number is used to
+control the system version of both
+parties. In case one party upgrades
+the system, the other party will
+recognize it via the version No.to
+avoid abnormal transaction.
+HEAD
+Number channelId
+<Merchant WEB> Initiation channel of user requests.
+Subject to updated with time.
+Customer APP
+Merchant WEB
+HEAD Instant timestamp Will be used to combat replay attack
+HEAD String Content-Type application/json Content Type of request parameters
+HEAD String X-API-KEY <string> API key to maintain authentication
+between bKash and merchant
+servers.
+Body Request Body
+(below)
+Part of a post request
+Subscription List Request Body
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+Number
+Page M < 2> Number of pages
+Size of the page
+Number size M <50>
+41 | P a g e
+Response: JSON
+Data Type Parameters Sample Values Remarks
+Number
+size
+<5> Size of the page
+Number totalElements
+<59> Total number of
+subscriptions
+Number totalPages
+< 12> Total number of pages
+with the given
+size
+Number currentPage
+List of
+subscription
+details
+content
+{
+"id": 1144,
+"subscriptionRequestId":
+"NonTragg0191",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01865200294",
+"amount": 50.00,
+"startDate": "2021-07-30",
+"expiryDate": "2021-08-20",
+"frequency": "WEEKLY",
+"status": "SUCCEEDED",
+"cancelledBy": null,
+All subscriptions
+"cancelledTime": null
+},
+42 | P a g e
+RESPONSE EXAMPLE:
+{
+"size": 5,
+"totalElements": 59,
+"totalPages": 12,
+"content": [
+{
+"id": 1144,
+"subscriptionRequestId": "NonTragg0191",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01865200294",
+"amount": 50.00,
+"startDate": "2021-07-30",
+"expiryDate": "2021-08-20",
+"frequency": "WEEKLY",
+"status": "SUCCEEDED",
+"cancelledBy": null,
+"cancelledTime": null
+},
+{
+"id": 1141,
+"subscriptionRequestId": "NonTragg0190",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01798266040",
+"amount": 50.00,
+"startDate": "2021-07-30",
+"expiryDate": "2021-08-02",
+"frequency": "DAILY",
+"status": "SUCCEEDED",
+"cancelledBy": null,
+"cancelledTime": null
+},
+{
+"id": 1140,
+43 | P a g e
+"subscriptionRequestId": "NonTragg0151",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01798266040",
+"amount": 10.00,
+"startDate": "2021-07-28",
+"expiryDate": "2021-07-30",
+"frequency": "DAILY",
+"status": "FAILED",
+"cancelledBy": null,
+"cancelledTime": null
+},
+{
+"id": 1139,
+"subscriptionRequestId": "NonTragg0150",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01798266040",
+"amount": 10.00,
+"startDate": "2021-07-28",
+"expiryDate": "2021-07-30",
+"frequency": "DAILY",
+"status": "CANCELLED",
+"cancelledBy": "REQUESTER",
+"cancelledTime": "2021-07-28T11:47:28.461139Z"
+},
+{
+"id": 1060,
+"subscriptionRequestId": "NonTragg0511",
+"merchantId": 9,
+"merchantShortCode": null,
+"payer": "01798266040",
+"amount": 4.00,
+"startDate": "2021-07-26",
+"expiryDate": "2021-07-29",
+"frequency": "DAILY",
+"status": "CANCELLED",
+"cancelledBy": "REQUESTER",
+"cancelledTime": "2021-07-26T11:32:23.203106Z"
+}
+],
+44 | P a g e
+"currentPage": 0
+}
+Payment List (Payment List Request)
+Merchant can also call for details of a list of payment
+METHOD URL
+GET /api/subscription/payment/bySubscriptionId/
+{subscriptionId}
+TYPE Data Type PARAMETERS Sample Value Remarks
+HEAD String Version V.01 The version number is used to
+control the system version of both
+parties. In case one party upgrades
+the system, the other party will
+recognize it via the version No.to
+avoid abnormal transaction.
+HEAD
+Number channelId
+<Merchant WEB> Initiation channel of user requests.
+Subject to updated with time.
+Customer APP
+Merchant WEB
+HEAD
+Instant timestamp
+Will be used to combat replay attack
+HEAD String Content-Type application/json Content Type of request parameters
+HEAD String X-API-KEY <string> API key to maintain authentication
+between bKash and merchant
+servers.
+Body Request Body
+(below)
+Part of a post request
+45 | P a g e
+Payment List Request Body
+Data Type Parameter Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+Number subscriptionId M <141> UNIQUE
+VALUE The unique identifier
+for the associated
+Subscription
+Response: JSON
+Data Type Parameters Sample Values Remarks
+List of
+Payment
+details
+[
+{
+"id": 1931,
+"subscriptionId": 953,
+"dueDate": "2021-07-14",
+"status": "SUCCEEDED_PAYMENT",
+"trxId": "8GE104UBL5",
+"trxTime": "2021-0714T12:48:22.80292",
+"amount": 50.00,
+"reverseTrxAmount": null,
+"reverseTrxId": null,
+"reverseTrxTime": null
+}, ]
+46 | P a g e
+RESPONSE EXAMPLE:
+[
+{
+"id": 1931,
+"subscriptionId": 953,
+"dueDate": "2021-07-14",
+"status": "SUCCEEDED_PAYMENT",
+"trxId": "8GE104UBL5",
+"trxTime": "2021-07-14T12:48:22.80292",
+"amount": 50.00,
+"reverseTrxAmount": null,
+"reverseTrxId": null,
+"reverseTrxTime": null
+},
+{
+"id": 1932,
+"subscriptionId": 953,
+"dueDate": "2021-07-29",
+"status": "SUCCEEDED_PAYMENT",
+"trxId": "8GT904USN9"
+"trxTime": "2021-07-29T06:00:09.139887"
+"amount": 50.00
+"reverseTrxAmount": null,
+"reverseTrxId": null,
+"reverseTrxTime": null
+}
+],
+47 | P a g e
+Cancel Subscription using subscription ID
+Merchant can cancel a subscription using subscription ID if it needs to. Cancel subscription means there
+will be no payment charging for the next cycle.
+METHOD URL
+DELETE /api/subscriptions/{subscriptionId}?reason={value}
+TYPE Data Type PARAMETERS SAMPLE VALUE Remarks
+HEAD
+String
+Version V1.0 The version number is used to
+control the system version of
+both parties.
+HEAD
+Number
+channelId <MERCHAT WEB> Channel Id indicates channel
+by which user initiated the
+request.
+1: Customer APP
+2: Merchant WEB
+HEAD
+Instant
+Timestamp Will be used to combat replay
+attack.
+HEAD String Content-Type application/json Content Type of request
+parameters
+PATH Number subscriptionId Subscription ID which can be
+fetched via execute
+subscription API
+PATH String reasonForCancellation Defines the reason for
+cancellation the subscription,
+Optional value
+HEAD String X-API-KEY <string> API key to maintain
+authentication between
+bKash and merchant servers
+48 | P a g e
+Response: JSON
+Type Data Type Parameters Values Remarks
+ACCEPT Content-Type application/json
+JSON String subscriptionRequestId < TraggSB00108> Subscription
+Request ID as
+identifier of
+specific request
+JSON Number subscriptionId <141> Subscription ID as
+identifier of
+specific
+subscription
+JSON String subscriptionStatus <CANCELLED> Subscription
+status on current
+time
+JSON String Message <string> An informal
+description that
+provides context
+for transactions
+JSON Instant Timestamp 2021-07-
+14T11:27:34.462238Z
+RESPONSE EXAMPLE:
+{
+ "message": null
+ "timeStamp": "2021-07-14T11:27:34.462238Z",
+ "subscriptionRequestId": "TraggSB00108",
+ "subscriptionId": 141,
+ "subscriptionStatus": "CANCELLED",
+}
+49 | P a g e
+Subscription Refund
+Merchant can refund against a subscription using payment ID if it needs to.
+METHOD URL
+POST /api/subscription/payment/refund
+TYPE Data PARAMETERS SAMPLE VALUE Remarks
+Type
+HEAD
+String
+Version V1.0 The version
+number is used
+to control the
+system version of
+both parties.
+HEAD
+Number
+channelCode < Merchant WEB > Channel Id
+indicates channel
+by which user
+initiated the
+request.
+1: Customer APP
+2: Merchant
+WEB
+HEAD
+String
+requestId <AMQR20200130220330999A1Rtg> (only alpha
+numeric no
+special
+character) This Id
+will be used to
+handling
+duplicate & end
+to end message
+tracing &
+troubleshooting.
+This should be
+unique for the
+system lifecycle
+HEAD
+Instant
+Timestamp Will be used to
+combat replay
+attack.
+50 | P a g e
+HEAD String Content-Type application/json Content Type of
+request
+parameters
+HEAD String X-API-KEY <string> API key to
+maintain
+authentication
+between bKash
+and merchant
+servers
+Request Body
+Data Parameter
+Type
+Mandatory
+/Optional
+Sample
+Value
+Remarks Description
+Number paymentId M <156778> Payment ID
+received during
+create call
+Payment ID
+for that
+Subscription
+to be
+refunded
+Decimal amount M <120.00> Amount to
+refund
+Payment
+Refund
+Amount
+RESPONSE:
+For Refund API, Merchant will only receive HTTP Status as OK. And after that, merchant will get the
+Webhook for Refund (success/fail)
+51 | P a g e
+Note:
+• X-API-KEY should be use for all kind of API calls for subscription.
+• This X-API-KEY will be provided by bKash once. If merchant requires to change, they can
+acknowledge bKash to change.
+• This is not the concrete API documentation. Few changes might come on the basis of need to
+improve the API engine.
+Errors
+Standard REST API HTTP status code is maintained over all API’s related with Subscription Payment.
+For all API 200 status code means intended action has been executed successfully.
+List of HTTP status are written below:
+internal_code external_code Description
+METHOD_ARGUMENT_INVALID 1001 Invalid method argument
+METHOD_ARGUMENT_TYPE_MISMATCH 1002 %s is not a valid %s
+HTTP_MESSAGE_UNREADABLE 1003 Http message not readable
+DATA_INTEGRITY_VIOLATION 1004
+Some key violates integrity
+constraint
+INVALID_SUBSCRIPTION_FIELD 2000 Invalid %s
+START_DATE_EXCEEDS_CURRENT_DATE 2001
+Subscription with current date
+as Start date after 11:30 pm is
+not allowed.
+START_DATE_IS_PREVIOUS 2002
+Start date cannot be previous
+date
+START_DATE_AFTER_EXPIRY 2003
+Start date cannot be after
+expiry date
+52 | P a g e
+SUBSCRIPTION_REQUEST_ID_USED 2004
+subscriptionRequestId already
+used
+SERVICE_ID_NOT_FOUND 2005 ServiceId %s not found.
+SERVICE_ID_DISABLED 2006 ServiceId %s is disabled
+SERVICE_ID_FOR_REQUESTER_DISABLED 2007
+Service id %s with this
+requester %s is disabled
+SERVICE_ID_FOR_REQUESTER_NOT_FOUND 2008
+Service id %s with this
+requester %s not found
+SUBSCRIPTION_NOT_FOUND 2009
+Subscription with id: %s
+doesn't exist
+SUBSCRIPTION_NOT_CANCELLABLE 2010
+Subscription with id: %s is not
+cancellable
+MERCHANT_NOT_VALID_FOR_REQUESTER 2011
+Merchant %s is not valid for
+requester %s
+MERCHANT_NOT_FOUND_SHORTCODE 2012 Merchant %s not found
+REQUESTER_NOT_FOUND_WITH_API_KEY 2013
+Requester not found for api
+key %s
+REQUESTER_NOT_AUTHORIZED 2014
+Unauthorized to perform
+action on %s : %s
+SUBSCRIPTION_NOT_EXTENDABLE 2015
+Subscription with id: %s is not
+extendable
+EXTENDED_END_DATE_INVALID 2016 Extended end date invalid
+SERVICE_ID_INVALID 2017 Service id is not valid
+53 | P a g e
+TRANSACTION_AMOUNT_BELLOW_CONFIGURED_LIMIT 2018
+%s should be greater than
+configured limit
+MERCHANT_DISABLED 2019 Merchant: %s is disabled
+MERCHANT_NOT_LINKED 2020 Merchant %s is not linked
+START_DATE_OR_EXPIRY_DATE_INVALID 2021
+Start date or expiry date is
+missing or invalid
+START_DATE_AND_EXPIRY_DATE_SAME 2022
+Same start date and expiry
+date is not supported
+EXPIRY_DATE_BELLOW_THRESHOLD 2023
+Expiry date invalid for given
+frequency
+MERCHANT_NOT_FOUND_WITH_ID 3000
+Merchant not found for id :
+%s
+FIELD_VALUE_INVALID 3001 %s is not a valid %s
+PAYMENT_NOT_FOUND_WITH_ID 3003 Payment not found for id: %s
+SUBSCRIPTION_NOT_FOUND_WITH_ID 3004
+Subscription not found for id :
+%s
+SUBSCRIPTION_NOT_CANCELLABLE_ADMIN 3005
+Subscription with id: %s is not
+cancellable
+MERCHANT_PASSWORD_ENCRYPTION_FAILED 3006
+Merchant password
+encryption failed
+MERCHANT_WITH_WALLET_SHORTCODE_EXISTS 3007
+Merchant with Wallet or
+ShortCode exists
+OTHER_MERCHANT_WITH_WALLET_SHORTCODE_EXISTS 3008
+Another Merchant with
+Wallet or ShortCode exists
+54 | P a g e
+SERVICE_ID_EXISTS 3009 Service with %s : %s exists
+SERVICE_WITH_API_SCOPE 3010
+Another service with given API
+Scope and CommandId Exists
+INVALID_PASSWORD_LENGTH 3011 Invalid password length
+INVALID_SMS_LENGTH 3013
+Length of %s should be less
+than %s characters without
+placeholders
+MERCHANT_EXISTS 3015
+Merchant with name or
+identifier exists 

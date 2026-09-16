@@ -1,0 +1,11 @@
+Display Name: <<<MERCHANT_DISPLAY_NAME>>>
+
+Staging (Sandbox Testing):
+Redirect URL: https://api.<<<MERCHANT_STAGING_DOMAIN>>>/api/v1/public/recurring-bkash/callback
+Webhook URL: https://api.<<<MERCHANT_STAGING_DOMAIN>>>/api/v1/public/recurring-bkash/webhook
+
+Production:
+Redirect URL: https://api.<<<MERCHANT_DOMAIN>>>/api/v1/public/recurring-bkash/callback
+Webhook URL: https://api.<<<MERCHANT_DOMAIN>>>/api/v1/public/recurring-bkash/webhook
+
+Please share the testing credentials.

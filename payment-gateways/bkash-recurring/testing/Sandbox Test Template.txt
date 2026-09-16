@@ -1,0 +1,234 @@
+================================================================================
+  bKash Recurring Payment - Sandbox Test Results
+================================================================================
+
+
+--------------------------------------------------------------------------------
+1. Recurring Create API — DAILY
+--------------------------------------------------------------------------------
+API Title   : Recurring Create API (DAILY)
+API URL     : POST https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription
+Request Body:
+[PASTE HERE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+2. Test Result with Payment / Basic Payment (Create API for payment cycle — DAILY)
+--------------------------------------------------------------------------------
+API Title   : Recurring Create API for Payment Cycle (DAILY)
+API URL     : POST https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription
+Request Body:
+[PASTE HERE]
+
+API Response:
+[PASTE HERE]
+
+Payment Test Notes:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+3. Recurring Execute API — DAILY
+--------------------------------------------------------------------------------
+API Title   : Recurring Execute / Callback (DAILY)
+API URL     : [Auto-called by bKash after consent — server callback URL]
+Request (bKash callback params received):
+[PASTE HERE]
+
+API Response (our server response):
+[PASTE HERE]
+
+--------------------------------------------------------------------------------
+4. Verification URL Called After 10 Minutes (Query by Request ID)
+--------------------------------------------------------------------------------
+API Title   : Query Recurring using Request_id (after 10 min)
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/request-id/{requestId}
+Request Body: N/A (GET request)
+Request ID used: [PASTE REQUEST ID]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+5. Create API — Same-Day startDate after 11:30 PM
+--------------------------------------------------------------------------------
+API Title   : Recurring Create API (same-day startDate after 11:30 PM)
+API URL     : POST https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription
+Request Body:
+[PASTE HERE]
+
+API Response (expected: error/rejection):
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+6. Payment Webhook Notification — DAILY
+--------------------------------------------------------------------------------
+API Title   : Payment Webhook Notification (DAILY)
+API URL     : POST [our server webhook endpoint]
+Webhook Payload received from bKash:
+[PASTE HERE]
+
+Our Server Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+7. Recurring Cancel API — DAILY
+--------------------------------------------------------------------------------
+API Title   : Recurring Cancel API
+API URL     : DELETE https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/{subscriptionId}?reason=
+Request Body: N/A (DELETE request)
+Subscription ID: [PASTE]
+Reason: [PASTE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+8. Recurring Cancel Webhook Notification — DAILY
+--------------------------------------------------------------------------------
+API Title   : Cancel Webhook Notification
+API URL     : POST [our server webhook endpoint]
+Webhook Payload received from bKash:
+[PASTE HERE]
+
+Our Server Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+9. After Successful Verification — Redirect to Merchant Success Page
+--------------------------------------------------------------------------------
+API Title   : Merchant Success Page Redirect (after successful verification)
+Screenshot  : [ATTACH SCREENSHOT]
+Notes:
+  - URL visible in browser: [PASTE URL]
+  - Recurring ID shown   : [PASTE RECURRING ID]
+  - Success message shown: [DESCRIBE/PASTE]
+
+
+--------------------------------------------------------------------------------
+10. After Verification Fail — Redirect to Merchant Fail Page
+--------------------------------------------------------------------------------
+API Title   : Merchant Fail Page Redirect (after failed verification)
+Screenshot  : [ATTACH SCREENSHOT]
+Notes:
+  - URL visible in browser : [PASTE URL]
+  - Reference shown        : [PASTE]
+  - Invoice shown          : [PASTE]
+  - Fail message shown     : [DESCRIBE/PASTE]
+
+
+--------------------------------------------------------------------------------
+11. After Cancel — Redirect to Merchant Redirect Page
+--------------------------------------------------------------------------------
+API Title   : Merchant Redirect Page (after cancel)
+Screenshot  : [ATTACH SCREENSHOT]
+Notes:
+  - URL visible in browser       : [PASTE URL]
+  - Reference number shown       : [PASTE]
+  - Successful cancel message    : [DESCRIBE/PASTE]
+
+
+--------------------------------------------------------------------------------
+12. Refund API (NO REFUND MECHANISM IN OUR SYSTEM)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+13. Refund Webhook Notification (NO REFUND MECHANISM IN OUR SYSTEM)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+14. Query Recurring using Request_id
+--------------------------------------------------------------------------------
+API Title   : Query Recurring using Request_id
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/request-id/{requestId}
+Request Body: N/A (GET request)
+Request ID used: [PASTE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+15. Query Recurring using Recurring_id
+--------------------------------------------------------------------------------
+API Title   : Query Recurring using Recurring_id
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/{subscriptionId}
+Request Body: N/A (GET request)
+Subscription ID used: [PASTE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+16. Query Payment using Payment_id
+--------------------------------------------------------------------------------
+API Title   : Query Payment using Payment_id
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/{paymentId}
+Request Body: N/A (GET request)
+Payment ID used: [PASTE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+17. Query Payment using Recurring_id
+--------------------------------------------------------------------------------
+API Title   : Query Payment using Recurring_id
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/bySubscriptionId/{subscriptionId}
+Request Body: N/A (GET request)
+Subscription ID used: [PASTE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+18. Extend Subscription using Subscription_ID
+--------------------------------------------------------------------------------
+API Title   : Extend Subscription
+API URL     : PUT https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription
+Request Body:
+[PASTE HERE]
+
+API Response:
+[PASTE HERE]
+
+
+--------------------------------------------------------------------------------
+19. Get Schedule using Start Date, End Date and Frequency
+--------------------------------------------------------------------------------
+API Title   : Get Schedule (DAILY)
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/schedule?frequency=DAILY&startDate=&expiryDate=
+Request Body: N/A (GET request)
+Params used :
+  frequency  : DAILY
+  startDate  : [PASTE]
+  expiryDate : [PASTE]
+
+API Response:
+[PASTE HERE]
+
+---
+
+API Title   : Get Schedule (WEEKLY)
+API URL     : GET https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/schedule?frequency=WEEKLY&startDate=&expiryDate=
+Request Body: N/A (GET request)
+Params used :
+  frequency  : WEEKLY
+  startDate  : [PASTE]
+  expiryDate : [PASTE]
+
+API Response:
+[PASTE HERE]
+
+

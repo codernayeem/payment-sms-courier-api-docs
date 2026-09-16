@@ -1,0 +1,13 @@
+
+API Credetails:
+
+    "merchant_id": "<<<UPAY_TEST_MERCHANT_ID>>>",
+    "merchant_key": "<<<UPAY_TEST_MERCHANT_KEY>>>"
+    "merchant_code": "9950 "
+    "merchant_name": "Service OPS Test"
+
+
+
+==========
+
+

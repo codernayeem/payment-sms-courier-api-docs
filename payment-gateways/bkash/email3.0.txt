@@ -1,0 +1,14 @@
+Dear Concern,
+ 
+This is to inform you that we have validated the shared sandbox test result with new credentials and found footprints to our logs. Please share the following:
+Merchant wallet number:
+PGW display name:
+Email address: (in which you will receive production URL and credentials. Only one email address is acceptable)
+Please keep your business logo at your server side and share a fixed url (web-link) maintaining following requirements. We will implement the URL in our system, so that your business logo will appear in the payment page. 
+Dimension must be 128x128px.
+Logo image format must be .png.
+Logo image size must be within 10KB.
+Logo image file name should be “MerchantName.png”
+URL must be HTTPS (SSL Certified)
+ 
+You will receive production credentials along with URLs once integration is done. Looking forward to your prompt response.

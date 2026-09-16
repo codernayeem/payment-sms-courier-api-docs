@@ -1,0 +1,27 @@
+Please find the attached files to get the Nagad Online Payment API Integration Guide.
+ 
+To integrate payment gateway with the Nagad Sandbox for API testing purpose, the following information will be required –
+ 
+Base URL of API: http://sandbox.mynagad.com:30001
+ 
+Check Out Initialize API: http://sandbox.mynagad.com:30001/api/dfs/check-out/initialize/{merchantId}/{orderId}
+ 
+Check Out Complete API: http://sandbox.mynagad.com:30001/api/dfs/check-out/complete/{paymentReferenceId}
+ 
+Payment Verification API: http://sandbox.mynagad.com:30001/api/dfs/verify/payment/{paymentReferenceId}
+ 
+ 
+Sandbox Merchant ID: <<<NAGAD_SANDBOX_MERCHANT_ID>>>
+ 
+Nagad Payment Gateway Public Key: Attached in the email (pgPublickey.txt)
+ 
+Merchant Private Key: Attached in the email (merchantPrivatekey.txt)
+ 
+ 
+If you need any example code, then we can share it.
+ 
+However, to complete the development and testing in sandbox environment, a mobile number needs to be registered in Nagad Sandbox so that you can test payment.
+ 
+Requesting you to email us a mobile number to onboard in Staging Environment
+ 
+After successful sandbox API integration in your local environment kindly email us back for an UAT session in order to proceed further for LIVE API integration

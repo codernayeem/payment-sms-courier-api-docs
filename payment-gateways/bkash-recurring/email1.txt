@@ -1,0 +1,49 @@
+Dear Concern,
+ 
+Please find the attached necessary information related to bKash Payment Gateway: Recurring Payment
+Attached API Document
+Attached Swagger API spec (Can be imported to Postman directly)
+ Sandbox gateway url: https://gateway.sbrecurring.pay.bka.sh/
+Also share the following details and after that we will provide the testing credentials (will be shared one-o-one while initiate integration):
+Display Name (80): Optional: this name will be displayed during bKash OTP/PIN verification
+Redirect URL (250): This is where bKash will redirect after the PIN/OTP flow. For sandbox, any mock URL with HTTP GET support will do. Please ensure HTTP GET is enabled for the URL.
+Webhook URL (250): This is where bKash will POST data after payment/refund etc. For sandbox, any mock URL with HTTP POST support will do.
+ 
+Note-1: API timeout of 30sec should be set for all the APIs.
+ 
+Note-2: You need to have validation from your end that User can select current date as start date before 11:30 pm of the current date.
+ 
+From integration perspective, we have to go through the following Milestones:
+Milestones
+Tasks
+Step 1: Integration Initiation
+Merchant is offered API document, Demo code and Sandbox gateway url
+Step 2 : Sandbox information collection
+Merchant shares Redirect url and webhook url
+S-2: Merchant system readiness with bKash PGW Sandbox
+a. bKash shares sandbox credentials to merchant
+b. Merchant shares user journey flow (if required)
+c. Solution document finalization (if required)
+S-3: Sandbox result validation
+a. Merchant shares required API responses for Sandbox
+b. bKash validates and accepts responses shared by merchant. Usually it takes 2 days)
+S-4: Production info collection
+Merchant shares necessary info. (MSISDN, Display Name, etc.)
+S-5: Production onboarding
+bKash provisions merchant on Production (Usually it takes 1-2 days)
+S-6: Merchant system readiness with bKash PGW Production
+Merchant confirms system readiness using Production credentials
+S-7: UAT & Go Live
+a. Business UAT : Checking user journey with Production credentials. [Checklist]
+b. Technical UAT : Checking merchant backend security mechanism (Usually it takes 2-3 days)
+[Checklist]
+c. Merchant makes the payment system available for all customers.
+ 
+Please note, to integrate bKash Payment Gateway your site must have a valid SSL certificate & we support only TLS1.2 or higher
+ 
+Going forward, we can continue this email thread for further Business/Technical walkthrough and clarification.
+ 
+If you have any queries, please let us know.
+ 
+ 
+Thanks & Regards,

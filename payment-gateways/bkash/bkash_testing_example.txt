@@ -1,0 +1,163 @@
+Grant Token
+• API Title : Grant Token
+• API URL : https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/token/grant
+• Request Body :
+{
+"app_secret" : "2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4
+b" ,
+"app_key" : "4f6o0cjiki2rfm34kfdadl1eqq"
+}
+• API Response :
+{
+"id_token" : "eyJraWQiOiJvTVJzNU9ZY0wrUnRXQ2o3ZEJtdlc5VDBEcytrckw5
+M1NzY0VqUzlERXVzPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJlODNlMDkwMC1j
+Y2ZmLTQzYTctODhiNy0wNjE5NDJkMTVmOTYiLCJhdWQiOiI0ZjZvMGNqaWtpMnJm
+bTM0a2ZkYWRsMWVxcSIsImV2ZW50X2lkIjoiNmI4YmY0MTctMTU5My00MzFkLTg3
+NWEtMjMzOTM0Njc0NDNlIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1
+Njc1ODU0MDMsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5hcC1zb3V0aGVh
+c3QtMS5hbWF6b25hd3MuY29tXC9hcC1zb3V0aGVhc3QtMV9yYTNuUFkzSlMiLCJj
+b2duaXRvOnVzZXJuYW1lIjoic2FuZGJveFRva2VuaXplZFVzZXIwMiIsImV4cCI6
+MTU2NzU4OTAwMywiaWF0IjoxNTY3NTg1NDAzfQ.KjFfI46yjZuwyX7hjGB4HcVJC
+_5UOAad1bOytZPUmCyzU_7azohr1iIqSRcaMOWtK5PCKkUIZbKROMKfZrYzeWKaF
+k7Nf0oEYFcvuzapNNJ8vGQaheIUqb2zN_zgCfQL7ggte4REWnhwlgq603bn0Ajec
+zlALDKZ3SDwYvzhH70CwkE53k1fvtAh5cZvwnc_k4UgIrGAvkzbSpkkiPJJF89ej
+VMPjvcdG2br76s-Xtr8zy8K2maMzSpRgpky-BtnTvbSaJAQy4St2IN5Le6CmmMfX
+t_5Idg7eA38W6z_8x3VVOM4jQFsPXa2lIBb8z6jIANnX0glm84Rzntc1lmjqA" ,
+"expires_in" : 3600 ,
+"token_type" : "Bearer" ,
+"statusMessage" : "Successful" ,
+"refresh_token" : "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjo
+iUlNBLU9BRVAifQ.tZ95Ahkwo8jDuvbNfkynF4OcKMxLW7P7xaKOobB7iXefWRJa
+Ad5LBMrBqS-Pm6y0MNGKWv4_W6noFdoIwKCmRr9-9ppc9aXwynEnUnTlIG4xWgYi
+k2nvf7ZKUfMG6SJXQK0AZpfacBPu9YDsdmpVhrOQ3xoGzQzp-AmrmyDRDK2-uaP2
+_6AJLXNbzFC_1W0p6H5eyuYHdIWiQYb-eMqKGDJd3W8YC7Eyl8ZltMfY87FE_Ger
+FSME-RABhxF-awuHZ9BHB9VzT8fGOdKLNNuZ83nykFX9qBostc_geY7tPXwmdrDA
+DY9T-CY3Mkf2e7XAgXquZ_66Ux1ZU6_30_GVng.dHPiBF8hnx2c6jK0.WGW-WnKM
+C6WnCLzQRFW4hngMofn2aYpIscpsRqzqG0Kp0yP8KWLCFEFCRaHeh995R5j56M8Q
+o5dpx8WKW-r_HnRsWeTQks-BTYipHBx_Idv4GCQHvaW6cPrdhky_eXStjWmIvcOi
+SN4w5gchYqi-lZ0JQ-MoGftAk0dVCVdr_iA8ALknwYrc01yY8ccZhqFrkbK2Ek3u
+Fgwh19lgX3zRdXe98UTRfBKsZ-Qm5E3Zhgt6d0JrsMleev1On2YhfmJ21jUo8rVg
+AXQM-QBTns4R_Zjo6G-KtVVTjrfRoF-MYAp1gEygayGxxhG77OQTk7cur-pG5BKn
+NfoyUd9NOA_HyKeeHCrBbWzQsWLJSvklTjyg4oy8G1rPtxugK7qZZzVgwS7jC3Ec
+hUUyHHwzNNPve0wjJMbZ8DhfGkfArxmHd7FDA-OOrIsjFfzswtHUaNX3TdWuVxmK
+
+CzV6zdXcXIx_Lhz5KLVeGCl2kOEa7OhGSISpeNoMbZLIPRBImnUnnvMEC-2WCmmh
+xda6swW735kiJRJv21b74f0NX5UozYbj_V1f1UoWzGUCc5Q-ZhnBzvsXrj0P5NF1
+WcsiBAa3tdZKaGdCt9z5I9TauFUD-xHGHOofa3vrTELEcKrUNv3w2xnE3cEf9Vn0
+uRflfLx6bUDT-gfwH7VPvN7_jwsnOAH_cE_m2ywRlIzTZm_C6dkCRJ2BfgcgpKxT
+W98DeXgX6fFlnKuLYtrSp6-e4T9kGiueCNDMpE0oqdqv7ihuqYnqCUMydTe-MDqz
+U90dbycgGFA4jVusbhJZ7Xfp3apk1a-xjOM3K_xblQYHA2Ztp4migsuAVt6NW6zn
+krI2ml-kd0Uq5oBOLAuosHuharZqakZRysWMkYHtO_h1IUM_-ZvB-OuKX3446mlI
+oHTCQFkb86_2MTrwW6EEepGs8t4ufxS5cwJu5-UMSb1vWIuaQArR4-EBAtAT3OjC
+RESiQR2AM4QFWrlPnqlHpLuYOgGhjBASdXC9hVN2EbrogxSxzBy5Is-JxUjL2neG
+_GlI3SD0p1W0roJUSHe8QQiCEERQngQN-JB5gHflRcNz5SZXZDZOyTrchzC2cThk
+E6aFLg6K6QJNS2YXJOXg9s1EsOBX08s69Xr2Fp4eb6gNJ06aODbP11aNhlxEgVui
+GeBwQ-DHATgOlZMLR6yK50gdLMC9AbfXM7hOC4vFeTWcIj2-sm9l8KKwcJw35v-r
+WidMBHXNXSvjx35uhpDVElmt55dDLmrIUXULMMstwpO_aS6iLrL2O0ee9JRQoOPS
+WWbGK5q2qj7v3rh2WBAusWmr5ykDWzQfphDDxOnBZwo.Q1VfpDR5ewceW9XxahE4
+Wg" ,
+"statusCode" : "0000"
+}
+Create API
+• API Title : Create Payment
+• API URL : https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/create
+• Request Body :
+{
+"mode" : "0011" ,
+"amount" : "1499" ,
+"currency" : "BDT" ,
+"intent" : "sale" ,
+"merchantInvoiceNumber" : "900000196" ,
+"callbackURL" : "http://iiapi.ikmanit.com/bkv2_BikroyOPM/v1/update
+_pay_status/bkash/900000196?origin=opm" ,
+"payerReference" : "09878777666"
+}
+• API Response :
+{
+"statusCode" : "0000" ,
+"statusMessage" : "Successful" ,
+"paymentID" : "TR0011DV1567529737718" ,
+"bkashURL" : "https://sandbox.payment.bkash.com/redirect/tokenized
+/?paymentID=TR0011DV1567529737718&hash=3fS_qPIoeQoOduggv*EIw3Cx(
+iaAaPdNKaP()Wpue6i(mGZluYJUJOhFDJH*sylgqBgR0MMQ*UmWs5R*5sVdy(reA
+vxYsdQg8cv!1567529737814&mode=0011&apiVersion=v1.2.0-beta" ,
+"callbackURL" : "http://iiapi.ikmanit.com/bkv2_BikroyOPM/v1/update
+_pay_status/bkash/900000196?origin=opm" ,
+"successCallbackURL" : "http://iiapi.ikmanit.com/bkv2_BikroyOPM/v1
+/update_pay_status/bkash/900000196?origin=opm&paymentID=TR0011DV
+1567529737718&status=success" ,
+
+"failureCallbackURL" : "http://iiapi.ikmanit.com/bkv2_BikroyOPM/v1
+/update_pay_status/bkash/900000196?origin=opm&paymentID=TR0011DV
+1567529737718&status=failure" ,
+"cancelledCallbackURL" : "http://iiapi.ikmanit.com/bkv2_BikroyOPM/
+v1/update_pay_status/bkash/900000196?origin=opm&paymentID=TR0011
+DV1567529737718&status=cancel" ,
+"amount" : "1499" ,
+"intent" : "sale" ,
+"currency" : "BDT" ,
+"paymentCreateTime" : "2019-09-03T22:55:37:813 GMT+0600" ,
+"transactionStatus" : "Initiated" ,
+"merchantInvoiceNumber" : "900000196"
+}
+Execute API
+• API Title : Execute Payment
+• API URL : https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/execute
+• Request Body :
+{
+"paymentID" : "TR0011DV1567529737718"
+}
+• API Response :
+{
+"statusCode" : "0000" ,
+"statusMessage" : "Successful" ,
+"paymentID" : "TR0011DV1567529737718" ,
+"payerReference" : "09878777666" ,
+"customerMsisdn" : "01770618575" ,
+"trxID" : "6I3801RD1Q" ,
+"amount" : "1499" ,
+"transactionStatus" : "Completed" ,
+"paymentExecuteTime" : "2019-09-03T23:00:58:366 GMT+0600" ,
+"currency" : "BDT" ,
+"intent" : "sale" ,
+"merchantInvoiceNumber" : "900000196"
+}
+Query Payment API
+• API Title : Query Payment API
+• API URL :
+https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/payment/status/
+
+• Request Body :
+{
+"paymentID" : "TR0011DV1567529737718"
+}
+• API Response :
+{
+"statusCode" : "0000" ,
+"statusMessage" : "Successful" ,
+"paymentID" : "TR0011DV1567529737718" ,
+"mode" : "0011" ,
+"paymentCreateTime" : "2019-09-03T22:55:37:813 GMT+0600" ,
+"paymentExecuteTime" : "2019-09-03T23:00:58:366 GMT+0600" ,
+"amount" : "1499" ,
+"currency" : "BDT" ,
+"intent" : "sale" ,
+"merchantInvoice" : "900000196" ,
+"trxID" : "6I3801RD1Q" ,
+"transactionStatus" : "Completed" ,
+"verificationStatus" : "Complete" ,
+"payerReference" : "09878777666"
+}
+Search Transaction API
+• API Title : Search Payment API
+• API URL :
+https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/general/searchTransaction
+• Request Body :
+{
+"trxID" : "6I3801RD1Q"
+}
+• API Response :
+{
+"statusCode" : "2003" ,
+"statusMessage" : "Process Failed"
+}

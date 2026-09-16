@@ -1,0 +1,17 @@
+Dear <<<MERCHANT_NAME>>>
+
+Greetings!
+
+Your bKash PGW API service is ready to use. Please find below details:
+
+Parameter	Detail
+Payment Gateway Production API context root	https://tokenized.pay.bka.sh/v1.2.0-beta
+Username (PGW)	<<<BKASH_PROD_USERNAME>>>
+Password (PGW)	<<<BKASH_PROD_PASSWORD>>>
+app_key (PGW)	<<<BKASH_PROD_APP_KEY>>>
+app_secret (PGW)	<<<BKASH_PROD_APP_SECRET>>>
+Please keep it confidential and do not reply this mail. Contact with your account manager if face any difficulty.
+
+Regards
+
+bKash Limited

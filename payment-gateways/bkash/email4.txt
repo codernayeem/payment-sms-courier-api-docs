@@ -1,0 +1,32 @@
+Dear Concern,
+
+This is to inform you that we have successfully completed Production integration and required production credentials along with URLs are sent to you already. We would appreciate it if you please complete production checking from your end and confirm us accordingly.
+
+Next Action Plan: 
+
+1.       Implement PGW in production but restrict from general user access. Don’t expose the bKash payment facility for the general customer in your site/app/… till go ahead from bKash.
+
+2.       Create a test user and a test product  to perform the UAT. Share the product link and user credential with us for technical and business UAT.
+
+3.       Communicate with your Key account manager to arrange UAT if you have completed above.
+
+There will be two UATs conducted, Business UAT and Technical UAT.
+
+The Business UAT will be conducted virtually and one representative from your end will have to share the screen and show the payment journey of the below test cases:
+ 
+Successful Payment
+A successful bKash payment will be carried out in this test case.
+ 
+Duplicate transaction check-
+After making a successful bKash payment, you will have to make another bKash payment within 2minutes, of the same amount and using same bKash wallet. Please ensure that test products of same amount are available to carry out this test case.
+ 
+Insufficient Balance-
+The test product amount should be greater than the available balance in the bKash wallet to carry out this test case.
+ 
+Failed Cases-
+Failed cases like Wrong OTP, Cancel Payment, etc.
+4.       Communicate with your Key account manager to arrange UAT if you have completed above.
+
+Note: every bKash API timeout is 30 sec. When you get no response within 30 sec from Execute Payment API, then you will  have to call Query Payment API with payment ID. If Query Payment API response is Initiated, means transaction is not completed at bKash end. And if Query Payment API response is Completed, means transaction is successful at bKash end. Thus, Query Payment API is mandatory.
+
+ For any further query, please let us know.

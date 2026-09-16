@@ -1,0 +1,536 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{parskip}
+\usepackage{enumitem}
+
+\geometry{margin=0.8in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue
+}
+
+\definecolor{SectionBar}{HTML}{1F4E79}
+\definecolor{LabelRed}{HTML}{B71C1C}
+\definecolor{CodeBg}{HTML}{F7F7F7}
+\definecolor{CodeBorder}{HTML}{D9D9D9}
+
+\lstdefinestyle{reportblock}{
+  basicstyle=\ttfamily\normalsize,
+  backgroundcolor=\color{CodeBg},
+  frame=single,
+  rulecolor=\color{CodeBorder},
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\newcommand{\maintitle}[1]{%
+  \begin{center}
+    {\fontsize{22}{26}\selectfont\bfseries #1}
+  \end{center}%
+}
+
+\newcommand{\checkpoint}[2]{%
+  \vspace{1.1em}%
+  \noindent\colorbox{SectionBar}{%
+    \parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+      \vspace{5pt}{\Large\bfseries\color{white} #1. #2}\vspace{5pt}%
+    }%
+  }\par\vspace{0.6em}%
+}
+
+\newcommand{\field}[1]{\noindent{\color{LabelRed}\bfseries #1}} 
+\newcommand{\screenshotbox}[1]{%
+  \begin{center}
+    \fbox{\parbox{0.9\linewidth}{\centering\vspace{1.5em}\textit{#1}\vspace{1.5em}}}
+  \end{center}
+}
+
+\begin{document}
+
+\maintitle{bKash Recurring Payment Sandbox Test Results}
+
+\begin{center}
+{\large \textbf{<<<MERCHANT_DISPLAY_NAME>>>}}
+\end{center}
+
+\vspace{0.8em}
+
+\checkpoint{1}{Recurring Create API - DAILY}
+\field{API Title:} Recurring Create API (DAILY)\\
+\field{API URL:} POST \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription}
+
+\field{Request Body:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "serviceId": 100001,
+  "paymentType": "FIXED",
+  "subscriptionType": "BASIC",
+  "amount": 50,
+  "currency": "BDT",
+  "frequency": "DAILY",
+  "startDate": "2026-05-17",
+  "expiryDate": "2028-05-17",
+  "maxCapRequired": false,
+  "payerType": "CUSTOMER",
+  "payer": null,
+  "firstPaymentIncludedInCycle": true,
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "redirectUrl": "https://api.<<<MERCHANT_DOMAIN>>>/api/v1/public/recurring-bkash/callback/SUB-REQ-1779015033078-6J7U5",
+  "subscriptionReference": "REC-REF-47",
+  "extraParams": null
+}
+\end{lstlisting}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "redirectURL": "https://intent.sbrecurring.pay.bka.sh/intent/web/intent/PGK5673P",
+  "expirationTime": "2026-05-17T11:00:33.601929Z",
+  "timeStamp": "2026-05-17T10:50:33.610188Z"
+}
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{2}{Test Result with Payment / Basic Payment (Create API for payment cycle - DAILY)}
+\field{API Title:} bKash RPP Webhook Received at (/api/v1/public/recurring-bkash/webhook)\\
+\field{Webhook Type:} SUBSCRIPTION
+
+\field{Recieved Payload:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "payer": "01770618575",
+  "frequency": "DAILY",
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "subscriptionReference": "REC-REF-47",
+  "message": null,
+  "timeStamp": "2026-05-17T10:51:22.240120Z",
+  "subscriptionStatus": "SUCCEEDED",
+  "nextPaymentDate": "2026-05-17",
+  "amount": null,
+  "trxId": null,
+  "trxDate": null
+}
+\end{lstlisting}
+
+\field{Note:} Subscription Started \& the first payment went through.
+
+\checkpoint{3}{First Payment webhook}
+\field{API Title:} bKash RPP Webhook Received at (/api/v1/public/recurring-bkash/webhook)\\
+\field{Webhook Type:} PAYMENT
+
+\field{Recieved Payload:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "payer": "01770618575",
+  "frequency": "DAILY",
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "subscriptionReference": "REC-REF-47",
+  "message": null,
+  "timeStamp": "2026-05-17T10:51:23.258656Z",
+  "paymentId": 434797,
+  "paymentStatus": "SUCCEEDED_PAYMENT",
+  "trxId": "DEH60OQ8GM",
+  "amount": 50,
+  "dueDate": "2026-05-17",
+  "nextPaymentDate": "2026-05-18",
+  "trxDate": "2026-05-17T10:51:22",
+  "firstPayment": false,
+  "errorCode": null
+}
+\end{lstlisting}
+
+\checkpoint{4}{Verification URL Called After 10 Minutes (Query by Request ID)}
+\field{API Title:} Query Recurring using Request\_id (after 10 min)\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/request-id/{requestId}}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "id": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "requesterId": 2,
+  "serviceId": 100001,
+  "paymentType": "FIXED",
+  "subscriptionType": "BASIC",
+  "amountQueryUrl": null,
+  "amount": 50.00,
+  "firstPaymentAmount": null,
+  "maxCapRequired": false,
+  "maxCapAmount": null,
+  "frequency": "DAILY",
+  "startDate": "2026-05-17",
+  "expiryDate": "2028-05-17",
+  "merchantId": 2,
+  "payerType": "CUSTOMER",
+  "payer": "01770618575",
+  "currency": "BDT",
+  "nextPaymentDate": "2026-05-18",
+  "status": "SUCCEEDED",
+  "subscriptionReference": "REC-REF-47",
+  "extraParams": null,
+  "cancelledBy": null,
+  "cancelledTime": null,
+  "createdAt": "2026-05-17 10:50:33",
+  "modifiedAt": "2026-05-17 10:51:23",
+  "lastSuccessfulPaymentDate": "2026-05-17 10:51:22",
+  "deductionFailureCount": 0,
+  "active": true,
+  "enabled": true,
+  "expired": false,
+  "rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20280517"
+}
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{5}{Create API - Same-Day startDate after 11:30 PM}
+\field{API Title:} Recurring Create API (same-day startDate after 11:30 PM)\\
+\field{API URL:} POST \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription}
+
+\field{Request Body:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionRequestId": "SUB-REQ-1779039155152-76JDU",
+  "serviceId": 100001,
+  "paymentType": "FIXED",
+  "subscriptionType": "BASIC",
+  "amount": 120,
+  "currency": "BDT",
+  "frequency": "DAILY",
+  "startDate": "2026-05-17",
+  "expiryDate": "2028-05-17",
+  "maxCapRequired": false,
+  "payerType": "CUSTOMER",
+  "payer": null,
+  "firstPaymentIncludedInCycle": true,
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "redirectUrl": "https://api.<<<MERCHANT_DOMAIN>>>/api/v1/public/recurring-bkash/callback/SUB-REQ-1779039155152-76JDU",
+  "subscriptionReference": "REC-REF-50",
+  "extraParams": null
+}
+\end{lstlisting}
+
+\field{API Response (expected: error/rejection):}
+\begin{lstlisting}[style=reportblock]
+{
+  "status": "BAD_REQUEST",
+  "reason": "Subscription with current date as Start date after 11:30 pm is not allowed.",
+  "errorCode": "2001",
+  "timeStamp": "2026-05-17T17:37:23.034329Z",
+  "subscriptionRequestId": "SUB-REQ-1779039155152-76JDU"
+}
+\end{lstlisting}
+
+\checkpoint{6}{Payment Webhook Notification - DAILY}
+\field{API Title:} Payment Webhook Notification (DAILY) (2nd Payment)\\
+\field{Webhook Type:} PAYMENT
+
+\field{Webhook Payload:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "payer": "01770618575",
+  "frequency": "DAILY",
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "subscriptionReference": "REC-REF-47",
+  "message": null,
+  "timeStamp": "2026-05-18T06:02:46.886305Z",
+  "paymentId": 434798,
+  "paymentStatus": "SUCCEEDED_PAYMENT",
+  "trxId": "DEI80OQBXY",
+  "amount": 50,
+  "dueDate": "2026-05-18",
+  "nextPaymentDate": "2026-05-19",
+  "trxDate": "2026-05-18T06:00:09",
+  "firstPayment": false,
+  "errorCode": null
+}
+\end{lstlisting}
+
+\checkpoint{7}{Recurring Cancel API - DAILY}
+\field{API Title:} Recurring Cancel API\\
+\field{API URL:} DELETE \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/85602?reason=Cancelled%20by%20admin}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85602,
+  "subscriptionRequestId": "SUB-REQ-1779013194112-RO0D5",
+  "subscriptionStatus": "CANCELLED",
+  "message": null,
+  "instant": "2026-05-18T06:58:07.919419Z"
+}
+\end{lstlisting}
+
+\checkpoint{8}{Recurring Cancel Webhook Notification - DAILY}
+\field{API Title:} Cancel Webhook Notification\\
+\field{Webhook Type:} SUBSCRIPTION
+
+\field{Webhook Payload:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85602,
+  "subscriptionRequestId": "SUB-REQ-1779013194112-RO0D5",
+  "payer": "01770618575",
+  "frequency": "DAILY",
+  "merchantShortCode": "<<<MERCHANT_SHORT_CODE>>>",
+  "subscriptionReference": "REC-REF-46",
+  "message": "Cancelled by admin",
+  "timeStamp": "2026-05-18T06:58:07.893166Z",
+  "subscriptionStatus": "CANCELLED",
+  "cancelledBy": "REQUESTER"
+}
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{9}{After Successful Verification - Redirect to Merchant Success Page}
+\field{API Title:} Merchant Success Page Redirect (after successful verification)\\
+\field{Screenshot:}
+
+\screenshotbox{[Screenshot of Merchant Success Page Redirect]}
+
+\field{Notes:}
+\begin{itemize}[leftmargin=1.4em, itemsep=0.2em, topsep=0.2em]
+  \item Recurring ID: 85604
+\end{itemize}
+
+\newpage
+
+\checkpoint{10}{After Verification Fail - Redirect to Merchant Fail Page}
+\field{API Title:} Merchant Fail Page Redirect (after failed verification)\\
+\field{Screenshot:}
+
+\screenshotbox{[Screenshot of Merchant Fail Page Redirect]}
+
+\field{Notes:}
+\begin{itemize}[leftmargin=1.4em, itemsep=0.2em, topsep=0.2em]
+  \item subscriptionReference: REC-REF-48
+  \item subscriptionRequestId: SUB-REQ-1779017554341-KK6BW
+  \item Invoice: SUB-REQ-1779017554341-KK6BW
+\end{itemize}
+
+\newpage
+
+\checkpoint{11}{After Cancel - Redirect to Merchant Redirect Page}
+\field{API Title:} Merchant Redirect Page (after cancel)\\
+\field{Screenshot:}
+
+\screenshotbox{[Screenshot of Merchant Redirect Page after Cancel]}
+
+\field{Notes:}
+\begin{itemize}[leftmargin=1.4em, itemsep=0.2em, topsep=0.2em]
+  \item subscriptionReference: REC-REF-49
+  \item subscriptionRequestId: SUB-REQ-1779018067418-7PRZ5
+\end{itemize}
+
+\checkpoint{12}{Refund API (NO REFUND MECHANISM IN OUR SYSTEM)}
+
+\checkpoint{13}{Refund Webhook Notification (NO REFUND MECHANISM IN OUR SYSTEM)}
+
+\newpage
+
+\checkpoint{14}{Query Recurring using Request\_id}
+\field{API Title:} Query Recurring using Request\_id\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/request-id/SUB-REQ-1779015033078-6J7U5}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "id": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "requesterId": 2,
+  "serviceId": 100001,
+  "paymentType": "FIXED",
+  "subscriptionType": "BASIC",
+  "amountQueryUrl": null,
+  "amount": 50.00,
+  "firstPaymentAmount": null,
+  "maxCapRequired": false,
+  "maxCapAmount": null,
+  "frequency": "DAILY",
+  "startDate": "2026-05-17",
+  "expiryDate": "2028-05-17",
+  "merchantId": 2,
+  "payerType": "CUSTOMER",
+  "payer": "01770618575",
+  "currency": "BDT",
+  "nextPaymentDate": "2026-05-18",
+  "status": "SUCCEEDED",
+  "subscriptionReference": "REC-REF-47",
+  "extraParams": null,
+  "cancelledBy": null,
+  "cancelledTime": null,
+  "createdAt": "2026-05-17 10:50:33",
+  "modifiedAt": "2026-05-17 10:51:23",
+  "lastSuccessfulPaymentDate": "2026-05-17 10:51:22",
+  "deductionFailureCount": 0,
+  "active": true,
+  "enabled": true,
+  "expired": false,
+  "rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20280517"
+}
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{15}{Query Recurring using Recurring\_id}
+\field{API Title:} Query Recurring using Recurring\_id\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscriptions/85604}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "id": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "requesterId": 2,
+  "serviceId": 100001,
+  "paymentType": "FIXED",
+  "subscriptionType": "BASIC",
+  "amountQueryUrl": null,
+  "amount": 50.00,
+  "firstPaymentAmount": null,
+  "maxCapRequired": false,
+  "maxCapAmount": null,
+  "frequency": "DAILY",
+  "startDate": "2026-05-17",
+  "expiryDate": "2028-05-17",
+  "merchantId": 2,
+  "payerType": "CUSTOMER",
+  "payer": "01770618575",
+  "currency": "BDT",
+  "nextPaymentDate": "2026-05-18",
+  "status": "SUCCEEDED",
+  "subscriptionReference": "REC-REF-47",
+  "extraParams": null,
+  "cancelledBy": null,
+  "cancelledTime": null,
+  "createdAt": "2026-05-17 10:50:33",
+  "modifiedAt": "2026-05-17 10:51:23",
+  "lastSuccessfulPaymentDate": "2026-05-17 10:51:22",
+  "deductionFailureCount": 0,
+  "active": true,
+  "enabled": true,
+  "expired": false,
+  "rrule": "FREQ=DAILY;INTERVAL=1;UNTIL=20280517"
+}
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{16}{Query Payment using Payment\_id}
+\field{API Title:} Query Payment using Payment\_id\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/434797}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "id": 434797,
+  "subscriptionId": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "dueDate": "2026-05-17",
+  "status": "SUCCEEDED_PAYMENT",
+  "trxId": "DEH60OQ8GM",
+  "trxTime": "2026-05-17T10:51:22.308567",
+  "amount": 50.00,
+  "reverseTrxAmount": null,
+  "reverseTrxId": null,
+  "reverseTrxTime": null
+}
+\end{lstlisting}
+
+\checkpoint{17}{Query Payment using Recurring\_id}
+\field{API Title:} Query Payment using Recurring\_id\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/bySubscriptionId/85604}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+[
+  {
+    "id": 434797,
+    "subscriptionId": 85604,
+    "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+    "dueDate": "2026-05-17",
+    "status": "SUCCEEDED_PAYMENT",
+    "trxId": "DEH60OQ8GM",
+    "trxTime": "2026-05-17T10:51:22.308567",
+    "amount": 50.00,
+    "reverseTrxAmount": null,
+    "reverseTrxId": null,
+    "reverseTrxTime": null
+  }
+]
+\end{lstlisting}
+
+\newpage
+
+\checkpoint{18}{Extend Subscription using Subscription\_ID}
+\field{API Title:} Extend Subscription\\
+\field{API URL:} PUT \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription}
+
+\field{Request Body:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85604,
+  "extendedDate": "2028-05-18",
+  "reasonForExtension": "Extended for testing"
+}
+\end{lstlisting}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "subscriptionId": 85604,
+  "subscriptionRequestId": "SUB-REQ-1779015033078-6J7U5",
+  "subscriptionStatus": "SUCCEEDED",
+  "startDate": "2026-05-17",
+  "previousEndDate": "2028-05-17",
+  "extendedEndDate": "2028-05-18",
+  "nextPaymentDate": "2026-05-19",
+  "message": null,
+  "timeStamp": "2026-05-18T07:03:37.789332Z"
+}
+\end{lstlisting}
+
+\checkpoint{19}{Get Schedule using Start Date, End Date and Frequency}
+\field{API Title:} Get Schedule (DAILY)\\
+\field{API URL:} GET \url{https://gateway.sbrecurring.pay.bka.sh/gateway/api/subscription/payment/schedule?frequency=DAILY&startDate=2026-05-18&expiryDate=2026-05-25}
+
+\field{API Response:}
+\begin{lstlisting}[style=reportblock]
+{
+  "count": 8,
+  "dates": [
+    "2026-05-18",
+    "2026-05-19",
+    "2026-05-20",
+    "2026-05-21",
+    "2026-05-22",
+    "2026-05-23",
+    "2026-05-24",
+    "2026-05-25"
+  ]
+}
+\end{lstlisting}
+
+\end{document}

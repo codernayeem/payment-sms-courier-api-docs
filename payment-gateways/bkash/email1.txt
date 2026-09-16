@@ -1,0 +1,80 @@
+Hope you are doing great. Please find below the necessary information related to bKash Payment Gateway : Checkout - URL.
+ 
+Note:
+⚠️ Note: The Grant Token API can only be called twice per hour. Exceeding this limit will trigger a one-hour block, during which no further Grant Token API requests will be accepted.
+ 
+Required APIs –
+Grant Token API
+Create API
+Execute API
+Query Payment API – This API should be called if the merchant system does not receive a response from the Execute API within 30 seconds. (mandatory)
+Search Transaction API
+Refund – If refund is applicable.
+Refund Status - This API should be called if the merchant system does not receive a response from the Refund API within 30 seconds or to check the refund status. (mandatory)
+API Doc - 
+Please note, API timeout of 30sec should be set for all the APIs.
+The API specification is attached herewith for your reference.
+Product Demonstration: https://merchantdemo.sandbox.bka.sh/tokenized-checkout/version/v2 
+You can only use any of the below wallet numbers in sandbox environment. If one wallet gets locked/ inactive, please use the other one. PIN and OTP will be the same for all wallets.
+ 
+Wallet Numbers
+Regular Active Customer wallet numbers:-
+ 
+01770618575   PIN: 12121
+01929918378   PIN: 12121
+01770618576   PIN: 21212
+01877722345   PIN: 13131
+01619777282   PIN: 21212
+01619777283   PIN: 13131
+OTP
+123456
+ 
+Payment Gateway error codes, subject to corresponding failure scenario (https://developer.bka.sh/docs/error-codes).
+Sandbox credentials (will be shared one-to-one) 
+ 
+From integration perspective, we have to go through the following steps:
+Milestones
+Tasks
+S-1: Integration Initiation
+Merchant is offered Developer Portal, Demo Link and Sandbox-1 credentials for testing
+S-2: Merchant system readiness with bKash PGW Sandbox
+a. Merchant confirms development readiness using sandbox-1
+b. Merchant shares user journey flow
+c. Solution document finalization (if required)
+S-3: Sandbox#2 result validation
+a. bKash shares Sandbox-2 and requests for required API responses.
+b. Merchant shares required API responses for Sandbox-2
+c. bKash validates and accepts responses shared by merchant.(Usually it takes 2 days)
+S-4: Production info collection
+Merchant shares necessary info. (MSISDN, Display Name, etc.)
+S-5: Production onboarding
+bKash provisions merchant on Production (Usually it takes 1-2 days)
+S-6: Merchant system readiness with bKash PGW Production
+Merchant confirms system readiness using Production credentials
+S-7: UAT & Go Live
+a. Business UAT : Checking user journey with Production credentials
+b. Technical UAT : Checking merchant backend security mechanism (Usually it takes 2-3 days)
+c. Merchant makes the payment system available for all customers.
+ 
+Please share with us your user journey flow after reviewing developer portal, demo and integration guidelines.
+ 
+Please note, to integrate bKash Payment Gateway your site must have a valid SSL certificate & we support only TLS1.2 or higher
+ 
+Going forward, we will continue this email thread for further Business/Technical walkthrough and clarification.
+ 
+Parameter
+Detail
+Payment Gateway UAT API context root
+https://tokenized.sandbox.bka.sh/v2/
+username (PGW)
+<<<BKASH_SANDBOX_USERNAME>>>
+password (PGW)
+<<<BKASH_SANDBOX_PASSWORD>>>
+app_key (PGW)
+<<<BKASH_SANDBOX_APP_KEY>>>
+app_secret (PGW)
+<<<BKASH_SANDBOX_APP_SECRET>>>
+ 
+If you have any queries, please let us know.
+ 
+Hope a nice journey together and seeking cooperation from all.

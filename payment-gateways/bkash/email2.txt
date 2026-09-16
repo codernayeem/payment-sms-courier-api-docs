@@ -1,0 +1,41 @@
+Dear Concern,
+ 
+As you have completed informal Sandbox testing and so sharing new formal sandbox credential (over one to one email) for Payment Gateway formal Sandbox testing and validation.
+ 
+API Request/Response :
+ 
+Please share formal sandbox test request of each below APIs in text format (in pdf file) so that we can validate -
+
+  1.  Grant Token - https://developer.bka.sh/v1.2.0-beta/reference#gettokenusingpost-2
+  2.  Create API - https://developer.bka.sh/v1.2.0-beta/reference#tokenizedcheckoutcreate
+  3.  Execute API - https://developer.bka.sh/v1.2.0-beta/reference#tokenizedcheckoutexecute
+  4.  Query Payment API - https://developer.bka.sh/v1.2.0-beta/reference#paymentstatususingpost (mandatory)
+  5.  Search Transaction API - https://developer.bka.sh/v1.2.0-beta/reference#searchtransactionusingpost
+Please maintain following format to share the responses using 2nd sandbox credential –
+•             API Title :
+•             API URL :
+•             Request Body :
+•             API Response :
+
+Error Code Implementation:
+
+You have to  implement all the error messages according to the error codes (https://developer.bka.sh/docs/error-codes ) so that customer gets a clear message and perform following tasks for validation -
+a.            You have to perform two transactions within 5min duration, with the same amount. In 2nd transaction you will get an error message.
+b.            Go to bKash payment page > Click Close > Will be redirected to “cancelledCallbackURL”. You need to show “Payment Cancelled” message to customer.
+c.             You need to initiate a transaction and put wrong/invalid OTP three times deliberately. In response you will get an error message. Will be redirected to “failureCallbackURL”. You need to show “Payment Failed” message.
+
+After performing the above tasks please share the following for both tasks –
+1.            Invoice number of each transaction.
+2.            Payment ID of each transaction.
+3.            Timestamp of each transaction.
+4.            Screenshot of error messages.
+ 
+A sample has been given in the following link for your reference -
+https://drive.google.com/file/d/1O3ip0E7EgoA0AOoD2YazmQEov3vi_u_B/view?usp=sharing
+ 
+ 
+Thanks & Regards,
+ 
+<<<BKASH_REPRESENTATIVE_NAME>>>,
+Product Integration, Product & Technology Division
+Mobile: <<<PHONE_NUMBER>>>
