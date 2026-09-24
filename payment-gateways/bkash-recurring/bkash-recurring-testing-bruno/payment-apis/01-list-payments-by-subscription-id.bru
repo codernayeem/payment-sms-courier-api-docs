@@ -1,0 +1,32 @@
+meta {
+  name: #17 List Payments by Subscription ID
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscription/payment/bySubscriptionId/{{bkashSubscriptionId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  bkashSubscriptionId: 88591
+}
+
+tests {
+  const json = res.body;
+  console.log("Payments by Subscription ID response:", JSON.stringify(json, null, 2));
+  
+  if (Array.isArray(json) && json.length > 0) {
+    const latest = [...json].sort((a, b) => (b.id || 0) - (a.id || 0))[0];
+    bru.setVar("bkashPaymentId", String(latest.id));
+    console.log("bkashPaymentId set to latest:", latest.id);
+  }
+}
+
+docs {
+  Checklist #17.
+  
+  Lists payments for the current subscription and stores the latest payment id into `bkashPaymentId`.
+}

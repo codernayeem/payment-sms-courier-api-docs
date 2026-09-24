@@ -1,4 +1,4 @@
-# bKash Recurring Payment Gateway (RPP) Documentation
+﻿# bKash Recurring Payment Gateway (RPP) Documentation
 
 ## Directory Files Summary
 
@@ -13,6 +13,9 @@
 | `Recurring Payment Sample API Request.pdf` | Official sample API requests document. |
 | `email1.txt` | Initial recurring payment onboarding email with milestones and requirements. |
 | `email1-reply.txt` | Merchant reply providing Display Name, Redirect URL, and Webhook URL (sanitized). |
-| `email2.txt` | bKash follow-up regarding sandbox test completion and production sign-off. |
+| `email2.txt` | bKash follow-up regarding sandbox test credentials. |
 | `email2-reply.txt` | Merchant confirmation of readiness for sandbox validation. |
+| `email3.txt` | bKash sandbox validation confirmation and production onboarding requirements (logo specs, wallet, app names). |
+| `email3-reply.txt` | Merchant reply providing production deployment assets and parameters (sanitized). |
+| `bkash-recurring-testing-bruno/` | Bruno API collection for direct bKash RPP Sandbox testing (Subscription, Payment, Schedule, and List APIs). |
 | `testing/` | Sandbox testing directory containing test cases template (`Sandbox Test Template.txt`), compiled PDF report (`bkash-RPP-sandbox-report.pdf`), and LaTeX source (`bkash-RPP-sandbox-report.tex`). |

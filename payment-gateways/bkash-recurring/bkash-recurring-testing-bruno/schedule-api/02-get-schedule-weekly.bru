@@ -1,0 +1,35 @@
+meta {
+  name: #19 Get Schedule - WEEKLY
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscription/payment/schedule
+  body: none
+  auth: none
+}
+
+params:query {
+  frequency: WEEKLY
+  startDate: {{_schedStartDate}}
+  expiryDate: {{_schedExpiryDate}}
+}
+
+script:pre-request {
+  const bdtOffsetMs = 6 * 60 * 60 * 1000;
+  const nowBdt = new Date(Date.now() + bdtOffsetMs);
+  const plusSevenBdt = new Date(Date.now() + bdtOffsetMs + (7 * 24 * 60 * 60 * 1000));
+
+  bru.setVar("_schedStartDate", nowBdt.toISOString().split("T")[0]);
+  bru.setVar("_schedExpiryDate", plusSevenBdt.toISOString().split("T")[0]);
+}
+
+tests {
+  const json = res.body;
+  console.log("Schedule (WEEKLY) response:", JSON.stringify(json, null, 2));
+}
+
+docs {
+  Checklist #19 for a weekly schedule example.
+}

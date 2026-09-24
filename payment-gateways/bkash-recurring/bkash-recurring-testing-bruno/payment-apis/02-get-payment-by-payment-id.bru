@@ -1,0 +1,26 @@
+meta {
+  name: #16 Get Payment by Payment ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscription/payment/{{bkashPaymentId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  bkashPaymentId: 490344
+}
+
+tests {
+  const json = res.body;
+  console.log("Payment by ID response:", JSON.stringify(json, null, 2));
+}
+
+docs {
+  Checklist #16.
+  
+  Requires `bkashPaymentId`. The collection-level header script still adds the standard headers even though this endpoint may not require them.
+}

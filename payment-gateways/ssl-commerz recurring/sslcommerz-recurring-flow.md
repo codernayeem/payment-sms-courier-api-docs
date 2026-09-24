@@ -1,4 +1,4 @@
-# SSLCommerz Recurring Payment - Complete Flow Documentation
+﻿# SSLCommerz Recurring Payment - Complete Flow Documentation
 
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
@@ -25,12 +25,12 @@ SSLCommerz recurring is fundamentally different from bKash recurring. SSLCommerz
 Frontend (Next.js)                Backend (Fastify)                     SSLCommerz
 ==================               =================                     ==========
 
-DonationForm.tsx ----POST /public/recurring-ssl----->  Create:
-  - donorName                                           - Donor (find/create)
-  - donorEmail/Phone                                    - RecurringDonation (status: initiated)
-  - amount                                              - Donation (status: pending)
+SubscriptionForm.tsx ----POST /public/recurring-ssl----->  Create:
+  - customerName                                           - Customer (find/create)
+  - customerEmail/Phone                                    - RecurringSubscription (status: initiated)
+  - amount                                              - Order (status: pending)
   - frequency                                           - Build encrypted schedule param
-  - fundId                                              - Call SSLCommerz Session API
+  - planId                                              - Call SSLCommerz Session API
                                                         - PaymentTransaction (audit)
                                                         - Return GatewayPageURL
                                   
@@ -44,8 +44,8 @@ User <----------- redirect to SSLCommerz page ---------  GatewayPageURL
                                   |       (with val_id, tran_id, status, etc.)
                                   v
                                 Verify with SSLCommerz Validation API
-                                Update Donation (pending -> completed)
-                                Update RecurringDonation (-> active)
+                                Update Order (pending -> completed)
+                                Update RecurringSubscription (-> active)
                                 Store subscriptionId
                                 Redirect to /payment/success
                                   
@@ -57,7 +57,7 @@ User <----------- redirect to SSLCommerz page ---------  GatewayPageURL
                                 Verify with Validation API (val_id)
                                 Validate amount
                                 Deduplicate (by tran_id/bank_tran_id)
-                                Create/Update Donation
+                                Create/Update Order
                                 Update stats
                                   
  [SCHEDULED AUTO-CHARGES]  (SSLCommerz initiates for subsequent payments)
@@ -65,7 +65,7 @@ User <----------- redirect to SSLCommerz page ---------  GatewayPageURL
     POST /recurring-ssl/bill-query <--- SSLCommerz asks "should I charge?"
                                   |
                                   v
-                                Find RecurringDonation by subscription_id
+                                Find RecurringSubscription by subscription_id
                                 Check status is active
                                 Check end date not passed
                                 Return: { status: "success", total_amount: "100.00" }
@@ -74,13 +74,13 @@ User <----------- redirect to SSLCommerz page ---------  GatewayPageURL
                                   |
                                   v
                                 (Same IPN handler as above)
-                                Create new Donation record
+                                Create new Order record
                                 Update stats
                                   
  [ADMIN MANAGEMENT]
-    POST /recurring-donations/:id/pause ----> gateway.disableSubscription()
-    POST /recurring-donations/:id/resume ---> gateway.enableSubscription()
-    POST /recurring-donations/:id/cancel ---> gateway.cancelSubscription()
+    POST /recurring-subscriptions/:id/pause ----> gateway.disableSubscription()
+    POST /recurring-subscriptions/:id/resume ---> gateway.enableSubscription()
+    POST /recurring-subscriptions/:id/cancel ---> gateway.cancelSubscription()
     
  [CRON: processRecurringPayments()]
     Periodically queries SSLCommerz for subscription status
@@ -97,18 +97,18 @@ User <----------- redirect to SSLCommerz page ---------  GatewayPageURL
 | `backend/src/plugins/app/cron-jobs.ts` | Cron: recurring subscription status sync (~575 lines) |
 | `backend/src/plugins/app/payment-service.ts` | Shared payment transaction service |
 | `backend/src/plugins/app/payment-gateways/gateway-manager.ts` | Gateway factory/availability |
-| `backend/src/routes/api/v1/recurring-donations/index.ts` | Admin recurring donation management (~337 lines) |
-| `frontend/components/donate/DonationForm.tsx` | Donation form UI |
-| `frontend/data/donationConfig.ts` | Payment method configuration |
+| `backend/src/routes/api/v1/recurring-subscriptions/index.ts` | Admin recurring Order management (~337 lines) |
+| `frontend/components/donate/SubscriptionForm.tsx` | Order form UI |
+| `frontend/data/OrderConfig.ts` | Payment method configuration |
 
 ---
 
 ## Database Models
 
-### RecurringDonation
+### RecurringSubscription
 ```
 id                  Int       PK
-donorId             Int       FK -> Donor
+customerId             Int       FK -> Customer
 amount              Decimal   The recurring charge amount
 frequency           String    daily | weekly | monthly | yearly
 paymentMethod       String    "sslcommerz"
@@ -122,18 +122,17 @@ startDate           DateTime
 endDate             DateTime? Set on cancel/deactivate
 nextBillingDate     DateTime? Calculated after each charge
 lastChargedAt       DateTime? Last successful charge
-fundId              Int       FK -> DonationFund  
-studentId           Int?      Not used for recurring (only regular fund)
+planId              Int       FK -> SubscriptionPlan  
 totalCharged        Decimal   Sum of all successful charges
 successCount        Int       Count of successful payments
 failedCount         Int       Count of failed payments
 ```
 
-### Donation (one per charge cycle)
+### Order (one per charge cycle)
 ```
 id                    Int       PK
-donorId               Int       FK -> Donor
-recurringDonationId   Int?      FK -> RecurringDonation
+customerId               Int       FK -> Customer
+RecurringSubscriptionId   Int?      FK -> RecurringSubscription
 amount                Decimal
 paymentMethod         String    "sslcommerz"
 paymentMethodDetail   String?   SSLCommerz card_type (e.g., "VISA-Dutch Bangla", "Mastercard")
@@ -141,15 +140,15 @@ status                String    pending -> completed/failed/cancelled/refunded
 transactionId         String?   SSLCommerz bank_tran_id or tran_id
 invoiceNumber         String?   Our generated invoice number
 isAnonymous           Boolean   Always false for recurring  
-userName              String?   Donor name
+userName              String?   Customer name
 ```
 
 ### PaymentTransaction (audit trail)
 ```
 id                    Int       PK
-donationId            Int       FK -> Donation
+orderId            Int       FK -> Order
 gateway               String    "sslcommerz"
-gatewayTransactionId  String?   tran_id (our transaction ID sent to SSLCommerz, format: DON{id}T{timestamp})
+gatewayTransactionId  String?   tran_id (our transaction ID sent to SSLCommerz, format: TXN{id}T{timestamp})
 gatewayPaymentId      String?   SSLCommerz session key or val_id
 bankTransactionId     String?   SSLCommerz bank_tran_id
 status                String    initiated/pending/success/failed/cancelled
@@ -165,25 +164,25 @@ completedAt           DateTime?
 failedAt              DateTime?
 ```
 
-### Donor
+### Customer
 ```
 id              Int
 email           String?
 phone           String?
 name            String?
-totalDonated    Decimal   Incremented on each successful recurring charge
-donationCount   Int       Incremented on each successful recurring charge
-lastDonatedAt   DateTime?
+totalSpent    Decimal   Incremented on each successful recurring charge
+orderCount   Int       Incremented on each successful recurring charge
+lastPurchasedAt   DateTime?
 ```
 
 ---
 
 ## Complete API Flow
 
-### Step 1: User Submits Recurring Donation Form
+### Step 1: User Submits Recurring Order Form
 
-**Frontend (DonationForm.tsx):**
-- User selects "Recurring" donation type
+**Frontend (SubscriptionForm.tsx):**
+- User selects "Recurring" Order type
 - Chooses frequency: Daily or Monthly
 - Enters amount (preset chips or custom)
 - Enters name + email or phone (required)
@@ -194,15 +193,15 @@ lastDonatedAt   DateTime?
 **API Call:** `POST /api/v1/public/recurring-ssl`
 ```json
 {
-  "donorName": "Rahim Ahmed",
-  "donorEmail": "rahim@example.com",
-  "donorPhone": "01712345678",
+  "customerName": "Rahim Ahmed",
+  "customerEmail": "rahim@example.com",
+  "customerPhone": "01712345678",
   "amount": 500,
   "frequency": "monthly",
   "dayOfMonth": 15,           // optional, defaults to today's date
   "weekDay": "sun",           // optional, for weekly only
-  "fundId": 1,
-  "message": "Monthly donation"
+  "planId": 1,
+  "message": "Monthly Order"
 }
 ```
 
@@ -213,12 +212,12 @@ lastDonatedAt   DateTime?
 2. Recurring gateway available (`SSLCOMMERZ_SALT_KEY` and `SSLCOMMERZ_RECURRING_REFER` env vars set)
 3. At least email or phone provided
 4. Phone format validation (BD format if provided)
-5. Fund exists, is active, slug=`regular`
+5. Subscription plan exists and is active
 
 **Database creates (in order):**
-1. **Donor:** Find by email OR phone, create if not found
-2. **RecurringDonation:** status=`initiated`, paymentMethod=`sslcommerz`, dayOfMonth/weekDay set
-3. **Donation:** status=`pending`, linked to RecurringDonation
+1. **Customer:** Find by email OR phone, create if not found
+2. **RecurringSubscription:** status=`initiated`, paymentMethod=`sslcommerz`, dayOfMonth/weekDay set
+3. **Order:** status=`pending`, linked to RecurringSubscription
 
 ### Step 3: Build Encrypted Schedule Parameter
 
@@ -263,15 +262,15 @@ cus_add1=Dhaka
 cus_city=Dhaka
 cus_country=Bangladesh
 shipping_method=NO
-product_name=Recurring Donation
-product_category=Donation
+product_name=Recurring Order
+product_category=Order
 product_profile=general
 schedule=<ENCRYPTED_SCHEDULE>       // AES-256-CBC encrypted JSON
 multi_card_name=visacard,mastercard // Only Visa & Mastercard support recurring
 login_req=1                         // REQUIRED - forces card save for recurring
-value_a=100                         // donationId
+value_a=100                         // orderId
 value_b=recurring                   // type marker
-value_c=42                          // recurringDonationId
+value_c=42                          // RecurringSubscriptionId
 value_d=INV-xxx                     // invoiceNumber
 ```
 
@@ -290,7 +289,7 @@ value_d=INV-xxx                     // invoiceNumber
 
 ### Step 5: Store & Create Audit Records
 
-- If `subscription_id` returned: Update RecurringDonation with subscriptionId, status=`processing`
+- If `subscription_id` returned: Update RecurringSubscription with subscriptionId, status=`processing`
 - Create PaymentTransaction with session API response stored in `createResponse`
 
 **Note:** `subscription_id` may NOT be returned in Session API response if there's an issue with schedule params. In that case, the transaction proceeds as normal (one-time), and the subscription_id comes later via IPN. Our code handles both cases.
@@ -302,8 +301,8 @@ value_d=INV-xxx                     // invoiceNumber
 {
   "success": true,
   "data": {
-    "recurringDonationId": 42,
-    "donationId": 100,
+    "RecurringSubscriptionId": 42,
+    "orderId": 100,
     "paymentTransactionId": 5,
     "transactionId": "DON100T1710000000",
     "amount": 500,
@@ -337,23 +336,23 @@ SSLCommerz redirects user to our callback with payment data (GET or POST).
 **Backend processing:**
 1. Parse callback data (GET query or POST body)
 2. Find PaymentTransaction by:
-   - `tran_id` (our DON{id}T{timestamp} format) -- primary lookup
-   - `value_a` (donationId) -- fallback
-   - Legacy `AMIREC{id}T` format -- fallback for old transactions
-3. Get the linked Donation and RecurringDonation
+   - `tran_id` (our TXN{id}T{timestamp} format) -- primary lookup
+   - `value_a` (orderId) -- fallback
+   - Legacy `REC{id}T` format -- fallback for old transactions
+3. Get the linked Order and RecurringSubscription
 4. **If status=SUCCESS:**
    - Verify with SSLCommerz Validation API using `val_id`
    - Call `queryPayment({ transactionId: val_id })` -> hits `/validator/api/validationserverAPI.php`
    - If validation passes: `markPaymentSuccess()` (idempotent)
-   - Update RecurringDonation: status=`active`, store subscriptionId
+   - Update RecurringSubscription: status=`active`, store subscriptionId
    - Redirect to `/payment/success?tx=...&amount=...&invoice=...&recurring=true`
 5. **If status=CANCELLED:**
-   - Mark payment cancelled, donation cancelled
-   - RecurringDonation: status=`cancelled`
+   - Mark payment cancelled, Order cancelled
+   - RecurringSubscription: status=`cancelled`
    - Redirect to `/payment/cancel`
 6. **If status=FAILED:**
-   - Mark payment failed, donation failed
-   - RecurringDonation: status=`payment_failed`, failedCount++
+   - Mark payment failed, Order failed
+   - RecurringSubscription: status=`payment_failed`, failedCount++
    - Redirect to `/payment/fail`
 
 ### Step 9: IPN (Server-to-Server, Concurrent with Callback)
@@ -366,27 +365,27 @@ SSLCommerz sends IPN to our backend independently of the browser callback.
 
 **Processing:**
 1. **Verify signature** (MD5 hash using verify_key + store_passwd)
-2. Find RecurringDonation by:
+2. Find RecurringSubscription by:
    - `subscription_id` -- primary
-   - Legacy `AMIREC{id}T` from tran_id -- fallback
-   - `value_a` (donationId) -- fallback
+   - Legacy `REC{id}T` from tran_id -- fallback
+   - `value_a` (orderId) -- fallback
    - `acctNo` -- last resort
 3. **Save subscription_id if missing** (IPN is most reliable source per SSL doc)
 4. **If status=VALID/VALIDATED:**
    - Verify with SSLCommerz Validation API (val_id)
-   - Validate amount matches RecurringDonation.amount (tolerance: 0.01 BDT)
+   - Validate amount matches RecurringSubscription.amount (tolerance: 0.01 BDT)
    - Log risk level if >= 1 (HIGH RISK)
-   - **Deduplication:** Check for existing Donation with same tran_id or bank_tran_id
-   - **First payment:** Find pending Donation -> update to `completed`
-   - **Subsequent charges:** Create new Donation record
+   - **Deduplication:** Check for existing Order with same tran_id or bank_tran_id
+   - **First payment:** Find pending Order -> update to `completed`
+   - **Subsequent charges:** Create new Order record
    - Create PaymentTransaction (audit)
-   - Update RecurringDonation stats (totalCharged, successCount, lastChargedAt, nextBillingDate)
-   - Update Donor stats (totalDonated, donationCount, lastDonatedAt)
+   - Update RecurringSubscription stats (totalCharged, successCount, lastChargedAt, nextBillingDate)
+   - Update Customer stats (totalSpent, orderCount, lastPurchasedAt)
    - Send email notification (async)
 5. **If status=FAILED:**
-   - Create failed Donation entry (every charge attempt is visible)
+   - Create failed Order entry (every charge attempt is visible)
    - Create failed PaymentTransaction
-   - Update RecurringDonation: failedCount++, status=`payment_failed`
+   - Update RecurringSubscription: failedCount++, status=`payment_failed`
 
 ### Step 10: Subsequent Scheduled Charges
 
@@ -425,7 +424,7 @@ Our response:
 ```
 
 **Bill Query checks:**
-- RecurringDonation found by subscription_id or acctNo
+- RecurringSubscription found by subscription_id or acctNo
 - Status is `active`
 - End date not passed (auto-deactivates if expired)
 - If any check fails: returns `status: "failed"` with reason, SSLCommerz skips the charge
@@ -437,7 +436,7 @@ If bill-query returns success, SSLCommerz auto-charges the saved card.
 **10c. IPN Notification**
 
 SSLCommerz sends IPN with charge result -> Same IPN handler as Step 9.
-Creates new Donation record for this billing cycle.
+Creates new Order record for this billing cycle.
 
 ### Step 11: Subscription Management
 
@@ -445,9 +444,9 @@ Creates new Donation record for this billing cycle.
 
 | Action | Endpoint | SSLCommerz API | Effect |
 |--------|----------|---------------|--------|
-| Pause | `POST /recurring-donations/:id/pause` | `disableSubscription` | Temporary - can resume later |
-| Resume | `POST /recurring-donations/:id/resume` | `enableSubscription` | Re-enable from paused state |
-| Cancel | `POST /recurring-donations/:id/cancel` | `cancelSubscription` | Permanent - cannot undo |
+| Pause | `POST /recurring-subscriptions/:id/pause` | `disableSubscription` | Temporary - can resume later |
+| Resume | `POST /recurring-subscriptions/:id/resume` | `enableSubscription` | Re-enable from paused state |
+| Cancel | `POST /recurring-subscriptions/:id/cancel` | `cancelSubscription` | Permanent - cannot undo |
 
 **Public endpoints (OTP-authenticated):**
 
@@ -460,7 +459,7 @@ Creates new Donation record for this billing cycle.
 ### Step 12: Cron Job - Status Sync
 
 `processRecurringPayments()` runs periodically:
-1. Queries all `active` RecurringDonations with paymentMethod=`sslcommerz`
+1. Queries all `active` RecurringSubscriptions with paymentMethod=`sslcommerz`
 2. For each: calls `gateway.getSubscriptionStatus(subscriptionId)`
 3. Maps SSLCommerz status to internal status
 4. Updates if different
@@ -567,13 +566,13 @@ cus_phone=01712345678
 
 ### Bill Query Decision Logic
 
-1. Find RecurringDonation by `subscription_id` or `acctNo`
+1. Find RecurringSubscription by `subscription_id` or `acctNo`
 2. Not found? Return `failed` ("Subscription not found")
 3. Status != `active`? Return `failed` ("Subscription is {status}")
 4. End date passed? Auto-deactivate, return `failed` ("Subscription has ended")
-5. All good? Return `success` with amount from RecurringDonation.amount
+5. All good? Return `success` with amount from RecurringSubscription.amount
 
-**Dynamic amount:** The bill-query response `total_amount` determines the charge amount. If you want to change the amount mid-subscription, update RecurringDonation.amount in the DB and the next bill-query will return the new amount.
+**Dynamic amount:** The bill-query response `total_amount` determines the charge amount. If you want to change the amount mid-subscription, update RecurringSubscription.amount in the DB and the next bill-query will return the new amount.
 
 ---
 
@@ -593,8 +592,8 @@ Verify MD5 signature (verify_sign + verify_key)
   |
   v  (fail -> 400 "Invalid signature")
   |
-Find RecurringDonation
-  (by subscription_id -> tran_id AMIREC format -> value_a -> acctNo)
+Find RecurringSubscription
+  (by subscription_id -> tran_id REC format -> value_a -> acctNo)
   |
   v  (not found -> 404)
   |
@@ -610,16 +609,16 @@ Status = VALID/VALIDATED?
   |             Log risk_level if >= 1
   |             Deduplicate (check tran_id AND bank_tran_id)
   |               |--- exists ---> 200 "Transaction already processed" (skip)
-  |             Check for pending Donation (first payment path)
+  |             Check for pending Order (first payment path)
   |               |--- found ---> Update pending to completed
-  |               |--- not found ---> Create new Donation (subsequent charge)
+  |               |--- not found ---> Create new Order (subsequent charge)
   |             Create PaymentTransaction (audit)
-  |             Update RecurringDonation stats
-  |             Update Donor stats
+  |             Update RecurringSubscription stats
+  |             Update Customer stats
   |             Send email (async, non-blocking)
   |             Return 200
   |
-  |--- NO (FAILED) ---> Create failed Donation entry
+  |--- NO (FAILED) ---> Create failed Order entry
   |                       Create failed PaymentTransaction
   |                       Increment failedCount
   |                       Return 200
@@ -635,17 +634,17 @@ Status = VALID/VALIDATED?
 1. User submits -> DB records created -> Redirect to SSLCommerz
 2. User pays with Visa/Mastercard, saves card
 3. **Callback fires:** Validates with SSLCommerz, marks completed, sets active
-4. **IPN fires (concurrent):** Deduplicates (donation already completed), skips
-5. On next billing date: Bill-query -> IPN -> New donation
+4. **IPN fires (concurrent):** Deduplicates (Order already completed), skips
+5. On next billing date: Bill-query -> IPN -> New Order
 6. Repeats every cycle
 
 ### Scenario 2: User Closes Browser BEFORE SSLCommerz Page
-- RecurringDonation: status=`processing`
-- Donation: status=`pending`
+- RecurringSubscription: status=`processing`
+- Order: status=`pending`
 - PaymentTransaction: status=`initiated`
 - **No callback, no IPN** will come
-- **Mitigation:** `reconcilePendingPayments()` cron job expires stale PaymentTransactions (marks as failed after timeout). However, RecurringDonation stays in `processing`.
-- **RECOMMENDATION:** Add cleanup for RecurringDonations stuck in `initiated`/`processing` older than 1 hour
+- **Mitigation:** `reconcilePendingPayments()` cron job expires stale PaymentTransactions (marks as failed after timeout). However, RecurringSubscription stays in `processing`.
+- **RECOMMENDATION:** Add cleanup for RecurringSubscriptions stuck in `initiated`/`processing` older than 1 hour
 
 ### Scenario 3: User Reaches SSLCommerz Page, Waits Indefinitely
 - SSLCommerz session has a built-in timeout (typically 20 minutes)
@@ -658,28 +657,28 @@ Status = VALID/VALIDATED?
 - Payment is successful on SSLCommerz side
 - **Callback never reaches our server**
 - **IPN DOES fire (server-to-server, independent of browser)**
-- IPN handler: Finds pending donation, updates to completed, activates subscription
+- IPN handler: Finds pending Order, updates to completed, activates subscription
 - **Impact:** User doesnt see success page, but subscription IS active
 - **This is WHY IPN exists** - it's the safety net for lost callbacks
 
 ### Scenario 5: User Cancels on SSLCommerz Page
 - SSLCommerz redirects to callback with status=CANCELLED
-- Callback: marks donation cancelled, RecurringDonation cancelled
+- Callback: marks Order cancelled, RecurringSubscription cancelled
 - No subscription created on SSLCommerz side
 
 ### Scenario 6: Card Declined / Payment Fails
 - SSLCommerz redirects to callback with status=FAILED
-- Callback: marks donation/payment failed
-- RecurringDonation: status=`payment_failed`, failedCount++
+- Callback: marks Order/payment failed
+- RecurringSubscription: status=`payment_failed`, failedCount++
 - No subscription activated
 
 ### Scenario 7: Callback Arrives Before IPN
 - Callback processes first: validates, marks completed, activates subscription
-- IPN arrives later: finds donation with matching tran_id, skips ("Transaction already processed")
+- IPN arrives later: finds Order with matching tran_id, skips ("Transaction already processed")
 - **Both paths are safe, no double-counting**
 
 ### Scenario 8: IPN Arrives Before Callback
-- IPN processes first: validates, updates pending donation to completed, activates
+- IPN processes first: validates, updates pending Order to completed, activates
 - Callback arrives later: `markPaymentSuccess()` is idempotent (checks if already completed)
 - **Both paths are safe, no double-counting**
 
@@ -687,19 +686,19 @@ Status = VALID/VALIDATED?
 - SSLCommerz calls bill-query -> returns `status: "success"` with amount
 - SSLCommerz charges saved card
 - SSLCommerz sends IPN with result
-- IPN creates new Donation + PaymentTransaction
+- IPN creates new Order + PaymentTransaction
 - Stats updated
 
 ### Scenario 10: Bill Query - Subscription Paused
 - SSLCommerz calls bill-query
-- RecurringDonation.status = `paused`
+- RecurringSubscription.status = `paused`
 - Returns `status: "failed"`, `failedreason: "Subscription is paused"`
 - SSLCommerz skips the charge for this cycle
 
 ### Scenario 11: Bill Query - Subscription Expired
 - SSLCommerz calls bill-query
 - EndDate has passed
-- Auto-deactivates RecurringDonation
+- Auto-deactivates RecurringSubscription
 - Returns `status: "failed"`, `failedreason: "Subscription has ended"`
 
 ### Scenario 12: Bill Query - Subscription Not Found
@@ -709,36 +708,36 @@ Status = VALID/VALIDATED?
 
 ### Scenario 13: Scheduled Charge Succeeds (IPN with VALID)
 - IPN arrives for auto-charge
-- Amount validated against RecurringDonation.amount
+- Amount validated against RecurringSubscription.amount
 - Deduplication check (by tran_id, bank_tran_id)
-- New Donation created (NOT update - these are new charges)
+- New Order created (NOT update - these are new charges)
 - Stats incremented
 - Email sent
 
 ### Scenario 14: Scheduled Charge Fails (IPN with FAILED)
 - IPN arrives with status=FAILED
-- Failed Donation record created (for full charge history visibility)
+- Failed Order record created (for full charge history visibility)
 - Failed PaymentTransaction created
-- RecurringDonation: failedCount++, status=`payment_failed`
+- RecurringSubscription: failedCount++, status=`payment_failed`
 - **SSLCommerz does NOT retry** (unlike bKash which retries 2 times)
 - The failed cycle is lost
 - **Bill-query for next cycle still runs** - subscription continues
 
 ### Scenario 15: Admin Pauses Subscription
-- `POST /recurring-donations/:id/pause`
+- `POST /recurring-subscriptions/:id/pause`
 - Backend calls `gateway.disableSubscription(subscriptionId)`
 - SSLCommerz API response confirms
 - Local status updated to `paused`
 - Next bill-query returns `failed` - charge skipped
 
 ### Scenario 16: Admin Resumes Subscription
-- `POST /recurring-donations/:id/resume`
+- `POST /recurring-subscriptions/:id/resume`
 - Backend calls `gateway.enableSubscription(subscriptionId)`
 - Local status updated to `active`
 - Next bill-query returns `success` - charge proceeds
 
 ### Scenario 17: Admin Cancels Subscription (Permanent)
-- `POST /recurring-donations/:id/cancel`
+- `POST /recurring-subscriptions/:id/cancel`
 - Backend calls `gateway.cancelSubscription(subscriptionId)`
 - Local status: `cancelled`, endDate=now
 - **Cannot be undone** - SSLCommerz permanently removes the schedule
@@ -750,14 +749,14 @@ Status = VALID/VALIDATED?
 - Logged as warning with computed vs received hash
 
 ### Scenario 19: IPN Amount Mismatch
-- IPN amount differs from RecurringDonation.amount by > 0.01 BDT
+- IPN amount differs from RecurringSubscription.amount by > 0.01 BDT
 - Return 400 "Amount mismatch"
 - Logged as error ("possible tampering")
-- No Donation created
+- No Order created
 
 ### Scenario 20: Duplicate IPN (Same tran_id)
-- First IPN creates Donation with transactionId=tran_id
-- Duplicate IPN: finds existing Donation with same tran_id or bank_tran_id
+- First IPN creates Order with transactionId=tran_id
+- Duplicate IPN: finds existing Order with same tran_id or bank_tran_id
 - Skips, returns 200 "Transaction already processed"
 - Stats NOT double-incremented
 
@@ -779,14 +778,14 @@ Per SSLCommerz docs: "If this ID is not generated, there is an issue with the re
 
 ### Scenario 24: SSLCommerz Session API Fails
 - API returns status != SUCCESS or no GatewayPageURL
-- Donation: status=`failed`
-- RecurringDonation: status=`payment_failed`
+- Order: status=`failed`
+- RecurringSubscription: status=`payment_failed`
 - Return 503 with gateway error message
 
 ### Scenario 25: SSLCommerz Validation API Down During Callback
 - `queryPayment()` throws
 - Caught, payment marked failed
-- RecurringDonation: status=`payment_failed`
+- RecurringSubscription: status=`payment_failed`
 - Redirect to fail page
 - **But:** IPN arrives independently and may succeed separately
 - IPN validation uses val_id; if SSLCommerz validation API is also down from IPN, the code **continues processing** anyway (logged as error, but doesn't block)
@@ -809,27 +808,27 @@ Per SSLCommerz docs: "If this ID is not generated, there is an issue with the re
 SSLCommerz sends BOTH a browser callback AND a server-to-server IPN for the first payment.
 
 **Deduplication strategy:**
-1. **Callback path:** Uses `markPaymentSuccess()` which is idempotent (checks if donation already completed)
-2. **IPN path:** Checks for existing Donation with same `tran_id` or `bank_tran_id`, or finds pending Donation
+1. **Callback path:** Uses `markPaymentSuccess()` which is idempotent (checks if Order already completed)
+2. **IPN path:** Checks for existing Order with same `tran_id` or `bank_tran_id`, or finds pending Order
 3. **Race condition safe:** Either path can win, the second is deduplicated
 
 ### Subsequent Auto-Charges: IPN Only
 
 Only IPN fires for auto-charges (no browser involved).
 
-**Deduplication:** Each IPN checked against existing Donations by `tran_id` AND `bank_tran_id`.
+**Deduplication:** Each IPN checked against existing Orders by `tran_id` AND `bank_tran_id`.
 
 ### Transaction ID Lookup Chain
 
 When finding PaymentTransaction in callback:
-1. By `tran_id` (our DON{id}T{timestamp} format)
-2. By `value_a` (donationId)
-3. By legacy `AMIREC{id}T` format
+1. By `tran_id` (our TXN{id}T{timestamp} format)
+2. By `value_a` (orderId)
+3. By legacy `REC{id}T` format
 
-When finding RecurringDonation in IPN:
+When finding RecurringSubscription in IPN:
 1. By `subscription_id`
-2. By legacy `AMIREC{id}T` from `tran_id`
-3. By `value_a` (donationId)
+2. By legacy `REC{id}T` from `tran_id`
+3. By `value_a` (orderId)
 4. By `acctNo`
 
 ---
@@ -901,9 +900,9 @@ valid = (computed_sign === verify_sign)
 |-------|-------|
 | **Store Name** | (auto-displayed) |
 | **Store ID** | (auto-displayed) |
-| **Name of the Payment** | "Recurring Donation" |
-| **Alias of Transaction Reference** | "Donation ID" |
-| **Pay Button** | "Donate Now" |
+| **Name of the Payment** | "Recurring Subscription" |
+| **Alias of Transaction Reference** | "Subscription ID" |
+| **Pay Button** | "Subscribe Now" |
 | **Amount (BDT)** | Leave empty (dynamic amounts) |
 | **QR Type** | **Recurring** |
 | **Amount Type** | **Dynamic** (uses Bill Query API) |
@@ -966,13 +965,13 @@ Test card numbers (sandbox):
 - [ ] First payment completes (callback + IPN both fire)
 - [ ] Callback validates with SSLCommerz API (val_id verification)
 - [ ] IPN signature verification works
-- [ ] RecurringDonation status transitions: initiated -> processing -> active
+- [ ] RecurringSubscription status transitions: initiated -> processing -> active
 - [ ] Subscription ID stored in DB
 - [ ] Bill-query endpoint returns correct amount
 - [ ] Bill-query returns "failed" for paused subscription
 - [ ] Bill-query returns "failed" for cancelled subscription
-- [ ] IPN for auto-charge creates new Donation
-- [ ] Failed IPN creates failed Donation entry
+- [ ] IPN for auto-charge creates new Order
+- [ ] Failed IPN creates failed Order entry
 - [ ] Duplicate IPN is deduplicated
 - [ ] Amount mismatch in IPN is rejected
 - [ ] Pause subscription works (admin)
@@ -1017,8 +1016,8 @@ Unlike bKash (which retries 2 times), SSLCommerz does NOT retry failed auto-char
 - **Recommendation:** Send notification email on failed charges (currently implemented in IPN handler)
 
 ### 2. Orphaned Records for Abandoned Flows
-RecurringDonations stuck in `initiated` or `processing` are not cleaned up by existing cron jobs. The `reconcilePendingPayments()` handles PaymentTransactions but not RecurringDonations.
-- **Recommendation:** Add cleanup for RecurringDonations stuck > 1 hour in initiated/processing
+RecurringSubscriptions stuck in `initiated` or `processing` are not cleaned up by existing cron jobs. The `reconcilePendingPayments()` handles PaymentTransactions but not RecurringSubscriptions.
+- **Recommendation:** Add cleanup for RecurringSubscriptions stuck > 1 hour in initiated/processing
 
 ### 3. subscription_id May Be Missing
 If schedule parameter has issues, SSLCommerz processes the transaction as a one-time payment without creating a subscription. The `subscription_id` is not returned. Our code handles this by:
@@ -1028,9 +1027,9 @@ If schedule parameter has issues, SSLCommerz processes the transaction as a one-
 - **Recommendation:** Alert admin if subscription_id is missing after first successful payment
 
 ### 4. Dynamic Amount Changes
-The bill-query response determines the charge amount. If you change RecurringDonation.amount in the DB, the next charge uses the new amount. However:
-- Old Donation records still show the old amount
-- Amount validation in IPN compares against current RecurringDonation.amount
+The bill-query response determines the charge amount. If you change RecurringSubscription.amount in the DB, the next charge uses the new amount. However:
+- Old Order records still show the old amount
+- Amount validation in IPN compares against current RecurringSubscription.amount
 - **Risk:** If IPN arrives with old amount but amount was just changed, it may fail validation
 
 ### 5. Encryption Compatibility

@@ -1,0 +1,50 @@
+﻿meta {
+  name: bKash Recurring RPP - Direct API (Sandbox)
+}
+
+vars:pre-request {
+  bkashBaseUrl: https://gateway.sbrecurring.pay.bka.sh/gateway
+  callbackUrl: https://<<<YOUR_DOMAIN>>>/api/v1/public/recurring-bkash/callback/SUB-REQ-TEST-001
+}
+
+script:pre-request {
+  const apiKey = (bru.getEnvVar("bkashApiKey") || "").trim();
+
+  if (!apiKey || apiKey === "PASTE_YOUR_API_KEY_HERE") {
+    throw new Error("Set bkashApiKey in the active Bruno environment before sending requests.");
+  }
+  
+  req.setHeaders({
+    version: "v1.0",
+    channelId: "Merchant WEB",
+    timeStamp: new Date().toISOString(),
+    "x-api-key": apiKey || "",
+    "Content-Type": "application/json"
+  });
+}
+
+docs {
+  # bKash Recurring RPP - Direct API (Sandbox)
+  
+  This Bruno collection mirrors the attached Postman collection and calls the bKash recurring API directly.
+  
+  ## Environment setup
+  
+  Use the included `Sandbox` environment and fill in only these credential values:
+  
+  - `bkashApiKey`
+  - `bkashServiceId`
+  - `bkashMerchantShortCode`
+  
+  Non-secret values such as the gateway base URL and callback URL are stored at the collection level. The request will fail immediately if `bkashApiKey` is missing from the active environment.
+  
+  ## Runtime variables
+  
+  These values are captured during a run and reused by later requests:
+  
+  - `subscriptionRequestId`
+  - `bkashSubscriptionId`
+  - `bkashPaymentId`
+  
+  If you run requests out of order, set the required runtime variable first or rerun the earlier request that populates it.
+}

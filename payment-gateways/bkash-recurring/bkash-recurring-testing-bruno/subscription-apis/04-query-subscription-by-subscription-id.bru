@@ -1,0 +1,26 @@
+meta {
+  name: #4 / #15 Query Subscription by Subscription ID
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscriptions/{{bkashSubscriptionId}}
+  body: none
+  auth: none
+}
+
+tests {
+  const json = res.body;
+  console.log("Query by Subscription ID response:", JSON.stringify(json, null, 2));
+
+  if (json && json.status) {
+    console.log("Subscription status:", json.status);
+  }
+}
+
+docs {
+  Checklist #4 and #15.
+
+  Requires the runtime variable `bkashSubscriptionId`, usually populated by the request-id query request.
+}

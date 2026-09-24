@@ -1,0 +1,30 @@
+meta {
+  name: #18 Extend Subscription
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{bkashBaseUrl}}/api/subscription
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "subscriptionId": 88591,
+    "extendedDate": "2028-09-24",
+    "reasonForExtension": "Extended for testing"
+  }
+}
+
+tests {
+  const json = res.body;
+  console.log("Extend Subscription response:", JSON.stringify(json, null, 2));
+}
+
+docs {
+  Checklist #18.
+  
+  Update `extendedDate` before sending so it lands 1 to 2 days beyond the current subscription expiry date.
+}

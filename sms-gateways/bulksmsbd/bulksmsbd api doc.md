@@ -1,4 +1,4 @@
-Time for integrating mobile otp service.
+﻿Time for integrating mobile otp service.
 
 Code
 Meaning
@@ -44,5 +44,5 @@ message,	SMS body,	Yes,	Please use url encoding to send some special characters 
     "message" : "your test sms content"
   }
 
-OTP for user login, donation completion (for donating with mobile, no email) & other service. 
+OTP for user login, order/payment confirmation & other service. 
 If error occurs, then let user know (dont show technical info)

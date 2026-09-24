@@ -1,4 +1,4 @@
-# Payment, SMS & Courier API Documentation Archive
+﻿# Payment, SMS & Courier API Documentation Archive
 
 A centralized repository containing API specifications, technical integration flows, official documentation PDFs, email communication records, and sandbox testing results for Payment Gateways, SMS Providers, and Courier Services.
 
@@ -37,7 +37,7 @@ payment-sms-courier-api-docs/
   * Tokenized Checkout V2 integration: error codes (`bkash_error_codes.txt`), API request traces (`bkash_testing_example.txt`), official specification (`PGW Tokenized Payment V2(Non-Beta) -- API Specification - V1.2.pdf`), email communication threads (`email1.txt` through `email4.txt`, `email3.0-reply.txt`).
 
 * **`bkash-recurring/`**
-  * bKash Recurring Payment Gateway (RPP) documentation: full architecture flow (`bkash-recurring-flow.md`), Mermaid sequence diagrams (`flow-diagram.md`), OpenAPI 3.0 Postman spec (`api-docs.json`), API payload examples (`api-example.txt`), official guides (`Recurring Payment Merchant Integration Guide v2.1.2.pdf` / `.txt`, `Recurring Payment Sample API Request.pdf`), email threads (`email1.txt`, `email1-reply.txt`, `email2.txt`, `email2-reply.txt`), and sandbox testing reports (`testing/` with `Sandbox Test Template.txt`, `bkash-RPP-sandbox-report.pdf` / `.tex`).
+  * bKash Recurring Payment Gateway (RPP) documentation: full architecture flow (`bkash-recurring-flow.md`), Mermaid sequence diagrams (`flow-diagram.md`), OpenAPI 3.0 Postman spec (`api-docs.json`), API payload examples (`api-example.txt`), official guides (`Recurring Payment Merchant Integration Guide v2.1.2.pdf` / `.txt`, `Recurring Payment Sample API Request.pdf`), email threads (`email1.txt` through `email3.txt`, `email1-reply.txt` through `email3-reply.txt`), Bruno API collection (`bkash-recurring-testing-bruno/`), and sandbox testing reports (`testing/` with `Sandbox Test Template.txt`, `bkash-RPP-sandbox-report.pdf` / `.tex`).
 
 * **`nagad/`**
   * Nagad Online Payment PGW: official guide (`ilide.info-nagad-online-payment-api-integration-guide-v3-3.pdf` / `.txt`), RSA key templates (`merchantPrivateKey.txt`, `pgPublicKey.txt`), onboarding emails (`email1.txt`, `email1-task.txt`, `email2.txt`), and live merchant portal reference screenshots.

@@ -20,12 +20,12 @@
 Frontend (Next.js)                Backend (Fastify)                    bKash RPP
 ==================               =================                    =========
                                   
-DonationForm.tsx ----POST /public/recurring-bkash--->  Create:
-  - donorName                                           - Donor (find/create)
-  - donorPhone                                          - RecurringDonation (status: initiated)
-  - amount                                              - Donation (status: pending)
+SubscriptionForm.tsx ----POST /public/recurring-bkash--->  Create:
+  - customerName                                           - Customer (find/create)
+  - customerPhone                                          - RecurringSubscription (status: initiated)
+  - amount                                              - Order (status: pending)
   - frequency                                           - Call bKash createSubscription()
-  - fundId                                              - PaymentTransaction (audit)
+  - planId                                              - PaymentTransaction (audit)
                                                         - Return redirectURL
                                   
 User <----------- redirect to bKash consent page ------  redirectURL from bKash
@@ -38,7 +38,7 @@ User <----------- redirect to bKash consent page ------  redirectURL from bKash
                                     |
                                     v
                                   Query bKash by subscriptionRequestId
-                                  Update RecurringDonation with actual bKash subscription ID
+                                  Update RecurringSubscription with actual bKash subscription ID
                                   Map bKash status to internal status
                                   Redirect to /payment/success or /payment/fail
                                     |
@@ -46,10 +46,10 @@ User <----------- redirect to bKash consent page ------  redirectURL from bKash
                                     |
                                     v
                                   Verify HMAC-SHA256 signature
-                                  Find RecurringDonation
+                                  Find RecurringSubscription
                                   Deduplicate by trxId
-                                  Create/Update Donation record
-                                  Update stats (recurring, donor)
+                                  Create/Update Order record
+                                  Update stats (recurring, customer)
                                   Send email notification
 ```
 
@@ -62,18 +62,18 @@ User <----------- redirect to bKash consent page ------  redirectURL from bKash
 | `backend/src/plugins/app/payment-gateways/bkash-errors.ts` | 100+ bKash error codes mapped |
 | `backend/src/plugins/app/payment-service.ts` | Shared payment transaction service |
 | `backend/src/plugins/app/payment-gateways/gateway-manager.ts` | Gateway factory/availability checks |
-| `frontend/components/donate/DonationForm.tsx` | Donation form UI |
-| `frontend/data/donationConfig.ts` | Recurring payment method configuration |
+| `frontend/components/donate/SubscriptionForm.tsx` | Order form UI |
+| `frontend/data/orderConfig.ts` | Recurring payment method configuration |
 | `frontend/lib/services/recurring.ts` | API hooks for recurring operations |
 
 ---
 
 ## Database Models
 
-### RecurringDonation
+### RecurringSubscription
 ```
 id                  Int       PK
-donorId             Int       FK -> Donor
+customerId             Int       FK -> Customer
 amount              Decimal   The recurring charge amount
 frequency           String    daily | weekly | monthly | yearly
 paymentMethod       String    "bkash-recurring"
@@ -87,18 +87,18 @@ startDate           DateTime
 endDate             DateTime? Set on expiry/cancellation
 nextBillingDate     DateTime? Updated from bKash webhook nextPaymentDate
 lastChargedAt       DateTime? Last successful charge timestamp
-fundId              Int       FK -> DonationFund
+planId              Int       FK -> SubscriptionPlan
 studentId           Int?      Not used for recurring (only regular fund)
 totalCharged        Decimal   Sum of all successful charges
 successCount        Int       Count of successful payments
 failedCount         Int       Count of failed payment attempts
 ```
 
-### Donation (one per charge cycle)
+### Order (one per charge cycle)
 ```
 id                    Int       PK
-donorId               Int       FK -> Donor
-recurringDonationId   Int?      FK -> RecurringDonation (links this charge to the subscription)
+customerId               Int       FK -> Customer
+recurringSubscriptionId   Int?      FK -> RecurringSubscription (links this charge to the subscription)
 amount                Decimal
 paymentMethod         String    "bkash-recurring"
 paymentMethodDetail   String?   "bKash Recurring"
@@ -106,13 +106,13 @@ status                String    pending -> completed/failed/cancelled/refunded
 transactionId         String?   bKash trxId (unique per payment cycle)
 invoiceNumber         String?   Our generated invoice
 isAnonymous           Boolean   Always false for recurring
-userName              String?   Donor name
+userName              String?   Customer name
 ```
 
 ### PaymentTransaction (audit trail per charge)
 ```
 id                    Int       PK
-donationId            Int       FK -> Donation
+orderId            Int       FK -> Order
 gateway               String    "bkash-recurring"
 gatewayTransactionId  String?   bKash trxId
 gatewayPaymentId      String?   bKash paymentId
@@ -128,25 +128,25 @@ completedAt           DateTime?
 failedAt              DateTime?
 ```
 
-### Donor
+### Customer
 ```
 id              Int
 email           String?
 phone           String?
 name            String?
-totalDonated    Decimal   Incremented on each successful recurring charge
-donationCount   Int       Incremented on each successful recurring charge
-lastDonatedAt   DateTime? Updated on each successful charge
+totalSpent    Decimal   Incremented on each successful recurring charge
+orderCount   Int       Incremented on each successful recurring charge
+lastPurchasedAt   DateTime? Updated on each successful charge
 ```
 
 ---
 
 ## Complete API Flow
 
-### Step 1: User Submits Recurring Donation Form
+### Step 1: User Submits Recurring Order Form
 
-**Frontend (DonationForm.tsx):**
-- User selects "Recurring" donation type
+**Frontend (SubscriptionForm.tsx):**
+- User selects "Recurring" order type
 - Chooses frequency: Daily or Monthly
 - Enters amount (preset chips: 10/20/50/100 for daily, 100/500/1000 for monthly)
 - Enters name + phone (required for bKash)
@@ -157,12 +157,12 @@ lastDonatedAt   DateTime? Updated on each successful charge
 **API Call:** `POST /api/v1/public/recurring-bkash`
 ```json
 {
-  "donorName": "Rahim Ahmed",
-  "donorPhone": "01712345678",
-  "donorEmail": "rahim@example.com",  // optional
+  "customerName": "Rahim Ahmed",
+  "customerPhone": "01712345678",
+  "customerEmail": "rahim@example.com",  // optional
   "amount": 100,
   "frequency": "monthly",
-  "fundId": 1,
+  "planId": 1,
   "message": "Monthly contribution"   // optional
 }
 ```
@@ -178,9 +178,9 @@ lastDonatedAt   DateTime? Updated on each successful charge
 6. Fund exists, is active, and has slug `regular` (only regular fund supports recurring)
 
 **Database creates (in order):**
-1. **Donor**: Find by email OR phone, create if not found, update if found
-2. **RecurringDonation**: status=`initiated`, paymentMethod=`bkash-recurring`
-3. **Donation**: status=`pending`, linked to RecurringDonation
+1. **Customer**: Find by email OR phone, create if not found, update if found
+2. **RecurringSubscription**: status=`initiated`, paymentMethod=`bkash-recurring`
+3. **Order**: status=`pending`, linked to RecurringSubscription
 
 ### Step 3: bKash Subscription Creation
 
@@ -225,7 +225,7 @@ Content-Type: application/json
 
 ### Step 4: Store Request ID & Create Audit Record
 
-- Update RecurringDonation: `subscriptionId = subscriptionRequestId`, `status = processing`
+- Update RecurringSubscription: `subscriptionId = subscriptionRequestId`, `status = processing`
 - Create PaymentTransaction: gateway=`bkash-recurring`, gatewayTransactionId=subscriptionRequestId
 
 ### Step 5: Redirect User to bKash
@@ -235,8 +235,8 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "recurringDonationId": 42,
-    "donationId": 100,
+    "recurringSubscriptionId": 42,
+    "orderId": 100,
     "paymentUrl": "https://recurring.pay.bka.sh/pay/xxx",
     "message": "Redirecting to bKash for subscription consent."
   }
@@ -259,11 +259,11 @@ On bKash page, user:
 **bKash redirects to:** `GET /api/v1/public/recurring-bkash/callback?subscriptionRequestId=xxx&status=success`
 
 **Backend processing:**
-1. Find RecurringDonation by `subscriptionRequestId` (stored in `subscriptionId` field)
+1. Find RecurringSubscription by `subscriptionRequestId` (stored in `subscriptionId` field)
 2. **MUST query bKash API** to get actual subscription status (callback params are not reliable alone)
 3. Call `bkashGateway.querySubscriptionByRequestId(subscriptionRequestId)`
 4. Get back: actual bKash `subscriptionId` (numeric), `payer` (wallet number), `status`
-5. Update RecurringDonation:
+5. Update RecurringSubscription:
    - `subscriptionId` = actual bKash subscription ID (replaces the request ID)
    - `acctNo` = payer wallet number
    - `status` = mapped from bKash status
@@ -273,8 +273,8 @@ On bKash page, user:
 |-------------|----------------|--------|
 | SUCCEEDED | active | Redirect to success page |
 | VERIFIED | processing | Redirect to success page (pending state) |
-| CANCELLED | cancelled | Cancel pending donation, redirect to cancel page |
-| FAILED | payment_failed | Fail pending donation, redirect to fail page |
+| CANCELLED | cancelled | Cancel pending order, redirect to cancel page |
+| FAILED | payment_failed | Fail pending order, redirect to fail page |
 | INITIALIZED | initiated | Redirect to success with `pending=true` |
 
 **Redirect to frontend:** `/payment/success?amount=100&invoice=INV-xxx&recurring=true&gateway=bkash`
@@ -297,14 +297,14 @@ bKash handles all scheduling internally. On each cycle date:
 **Processing:**
 1. Verify HMAC-SHA256 signature
 2. Route to `handlePaymentWebhook()`
-3. Find RecurringDonation by subscriptionId or subscriptionRequestId
+3. Find RecurringSubscription by subscriptionId or subscriptionRequestId
 4. Check deduplication (by trxId)
 5. Validate amount matches expected
-6. For first payment: update existing pending Donation
-7. For subsequent payments: create new Donation record
+6. For first payment: update existing pending Order
+7. For subsequent payments: create new Order record
 8. Create PaymentTransaction (audit)
-9. Update RecurringDonation stats (totalCharged, successCount, lastChargedAt, nextBillingDate)
-10. Update Donor stats (totalDonated, donationCount, lastDonatedAt)
+9. Update RecurringSubscription stats (totalCharged, successCount, lastChargedAt, nextBillingDate)
+10. Update Customer stats (totalSpent, orderCount, lastPurchasedAt)
 11. Send email notification (async, non-blocking)
 
 ---
@@ -314,79 +314,79 @@ bKash handles all scheduling internally. On each cycle date:
 ### Scenario 1: Happy Path - Successful Subscription + Payments
 1. User submits form -> Records created -> Redirect to bKash
 2. User completes consent -> Callback updates status to `active`
-3. bKash auto-debits on schedule -> PAYMENT webhook -> Donation created
+3. bKash auto-debits on schedule -> PAYMENT webhook -> Order created
 4. Repeats every cycle until cancelled/expired
 
 **DB State After First Payment:**
-- RecurringDonation: status=`active`, subscriptionId=bKash ID, successCount=1
-- Donation #1: status=`completed`, transactionId=trxId
+- RecurringSubscription: status=`active`, subscriptionId=bKash ID, successCount=1
+- Order #1: status=`completed`, transactionId=trxId
 - PaymentTransaction #1: status=`success`
-- Donor: totalDonated += amount, donationCount += 1
+- Customer: totalSpent += amount, orderCount += 1
 
 ### Scenario 2: User Closes Browser BEFORE Reaching bKash Page
-- RecurringDonation: status=`processing`, subscriptionId=requestId
-- Donation: status=`pending`
+- RecurringSubscription: status=`processing`, subscriptionId=requestId
+- Order: status=`pending`
 - **No callback, no webhook** will come
 - **Impact:** Orphaned pending records sit in DB
-- **Mitigation:** The cron job `reconcilePendingPayments()` will eventually expire stale pending PaymentTransactions. However, the RecurringDonation stays in `processing` state.
-- **RECOMMENDATION:** Add a cron job to auto-cancel RecurringDonations stuck in `initiated` or `processing` for >1 hour
+- **Mitigation:** The cron job `reconcilePendingPayments()` will eventually expire stale pending PaymentTransactions. However, the RecurringSubscription stays in `processing` state.
+- **RECOMMENDATION:** Add a cron job to auto-cancel RecurringSubscriptions stuck in `initiated` or `processing` for >1 hour
 
 ### Scenario 3: User Reaches bKash Page, Then Closes Browser (No Consent)
 - Same as Scenario 2: bKash session expires silently
 - **No callback, no webhook**
-- RecurringDonation stays in `processing`
-- Donation stays in `pending`
+- RecurringSubscription stays in `processing`
+- Order stays in `pending`
 - **Mitigation:** Same as above - needs cleanup cron
 
 ### Scenario 4: User Completes Consent, But Browser Tab Closes Before Callback Redirect
 - bKash has created the subscription successfully
 - **Callback never hits our server** (user closed tab)
 - bKash WILL send a **SUBSCRIPTION webhook** (Type: SUBSCRIPTION) with the subscription status
-- **Current handling:** `handleSubscriptionWebhook()` updates RecurringDonation status and stores subscription ID
+- **Current handling:** `handleSubscriptionWebhook()` updates RecurringSubscription status and stores subscription ID
 - BUT: The first auto-debit PAYMENT webhook will arrive on schedule, which will:
-  - Find RecurringDonation by subscriptionId
-  - Find the pending Donation and update it to `completed`
+  - Find RecurringSubscription by subscriptionId
+  - Find the pending Order and update it to `completed`
   - Set status to `active`
 - **Impact:** Subscription works correctly, but user sees the fail page (or nothing). On next visit, they'd see it's active.
-- **Known gap:** The `subscriptionId` in our DB may still contain the requestId (not the actual bKash ID) until the SUBSCRIPTION webhook or first PAYMENT webhook arrives. The `findRecurringDonation()` helper searches by both IDs to handle this.
+- **Known gap:** The `subscriptionId` in our DB may still contain the requestId (not the actual bKash ID) until the SUBSCRIPTION webhook or first PAYMENT webhook arrives. The `findRecurringSubscription()` helper searches by both IDs to handle this.
 
 ### Scenario 5: User Cancels on bKash Consent Page
 - bKash redirects to callback with `status=cancelled`
 - Callback queries bKash API -> status=CANCELLED
-- RecurringDonation: status=`cancelled`
-- Pending Donation: status=`cancelled`
+- RecurringSubscription: status=`cancelled`
+- Pending Order: status=`cancelled`
 - **Clean state, no further action needed**
 
 ### Scenario 6: bKash Consent Fails (OTP/PIN Error)
 - bKash redirects to callback with `status=failure`
 - Callback queries bKash -> status=FAILED
-- RecurringDonation: status=`payment_failed`
-- Pending Donation: status=`failed`
+- RecurringSubscription: status=`payment_failed`
+- Pending Order: status=`failed`
 
 ### Scenario 7: Subscription Active, Scheduled Payment Succeeds
 - PAYMENT webhook arrives with `paymentStatus: SUCCEEDED_PAYMENT`
 - Deduplication check by trxId
-- New Donation created with status=`completed`
+- New Order created with status=`completed`
 - Stats incremented
 - Email sent
 
 ### Scenario 8: Subscription Active, Scheduled Payment Fails
 - PAYMENT webhook arrives with `paymentStatus: FAILED_PAYMENT`
-- Failed Donation record created (for visibility)
+- Failed Order record created (for visibility)
 - Failed PaymentTransaction created (for audit)
-- RecurringDonation: `failedCount += 1`, status=`payment_failed`
+- RecurringSubscription: `failedCount += 1`, status=`payment_failed`
 - **bKash retry policy:** For non-daily subscriptions, bKash retries 2 times every 3 days
 - Retry webhook comes with `paymentStatus: RE_SUCCEEDED_PAYMENT` or `RE_FAILED_PAYMENT`
 
 ### Scenario 9: bKash Retries a Failed Payment Successfully
 - PAYMENT webhook with `paymentStatus: RE_SUCCEEDED_PAYMENT`
 - Treated same as `SUCCEEDED_PAYMENT`
-- New Donation created, stats incremented
-- RecurringDonation status set back to `active`
+- New Order created, stats incremented
+- RecurringSubscription status set back to `active`
 
 ### Scenario 10: bKash Retries Exhaust, Payment Still Fails
 - All retries fail (RE_FAILED_PAYMENT)
-- RecurringDonation: `failedCount` keeps incrementing
+- RecurringSubscription: `failedCount` keeps incrementing
 - bKash continues subscription from next cycle (does NOT auto-cancel)
 - **The failed cycle amount is lost** - merchant must handle directly with customer
 - Status remains `payment_failed` until next successful payment sets it back to `active`
@@ -394,29 +394,29 @@ bKash handles all scheduling internally. On each cycle date:
 ### Scenario 11: User Cancels Subscription (From Our System)
 - `POST /api/v1/public/recurring-bkash/:subscriptionId/cancel` (authenticated)
 - Backend calls `bkashGateway.cancelSubscription(subscriptionId, reason)`
-- RecurringDonation: status=`cancelled`
+- RecurringSubscription: status=`cancelled`
 - bKash ALSO sends a CANCEL webhook as confirmation
 
 ### Scenario 12: User Cancels from bKash App/Customer Service
 - bKash sends CANCEL webhook
-- `handleCancelWebhook()`: RecurringDonation status=`cancelled`
-- All pending donations set to `cancelled`
+- `handleCancelWebhook()`: RecurringSubscription status=`cancelled`
+- All pending orders set to `cancelled`
 
 ### Scenario 13: Subscription Expires (Reaches End Date)
 - bKash sends EXPIRY webhook
-- `handleExpiryWebhook()`: RecurringDonation status=`deactivated`, endDate=now
+- `handleExpiryWebhook()`: RecurringSubscription status=`deactivated`, endDate=now
 - No further charges
 
 ### Scenario 14: Refund Initiated (From Our Admin)
 - Admin calls refund via bKash API
 - bKash sends REFUND webhook with `paymentStatus: SUCCEEDED_REFUND`
-- Original Donation: status=`refunded`
-- Donor totalDonated decremented
-- RecurringDonation totalCharged decremented
+- Original Order: status=`refunded`
+- Customer totalSpent decremented
+- RecurringSubscription totalCharged decremented
 
 ### Scenario 15: Duplicate Webhook (bKash Sends Same Payment Twice)
 - PAYMENT webhook arrives with same trxId
-- Deduplication check: `prisma.donation.findFirst({ where: { transactionId: trxId } })`
+- Deduplication check: `prisma.order.findFirst({ where: { transactionId: trxId } })`
 - If found: skip, return 200 "Transaction already processed"
 - **Stats NOT double-incremented**
 
@@ -427,11 +427,11 @@ bKash handles all scheduling internally. On each cycle date:
 - Logged as warning
 
 ### Scenario 17: Amount Mismatch in Webhook
-- PAYMENT webhook has different amount than RecurringDonation.amount
+- PAYMENT webhook has different amount than RecurringSubscription.amount
 - Tolerance: 0.01 BDT
 - Return 400 "Amount mismatch"
 - Logged as error (possible tampering)
-- No Donation created
+- No Order created
 
 ### Scenario 18: Subscription Not Found for Webhook
 - Webhook arrives with unknown subscriptionId/subscriptionRequestId
@@ -450,14 +450,14 @@ bKash handles all scheduling internally. On each cycle date:
 
 ### Scenario 21: Network Error During bKash API Call (createSubscription)
 - API call fails/times out
-- Donation: status=`failed`
-- RecurringDonation: status=`payment_failed`
+- Order: status=`failed`
+- RecurringSubscription: status=`payment_failed`
 - Return 503 with error message
 
 ### Scenario 22: Callback Query to bKash Fails (Network/API Error)
 - `querySubscriptionByRequestId` throws
 - Caught by try/catch
-- RecurringDonation: status=`payment_failed`
+- RecurringSubscription: status=`payment_failed`
 - Redirect to `/payment/fail?error=subscription_query_failed`
 - **The subscription might actually be active on bKash side**
 - **Mitigation:** SUBSCRIPTION webhook or PAYMENT webhook will eventually correct the state
@@ -507,15 +507,15 @@ This single URL handles ALL webhook types. The `Type` header determines routing.
 ## Deduplication & Idempotency
 
 ### First Payment (Callback + Possible Webhook Race)
-- Callback processes first: Updates pending Donation to `completed`
+- Callback processes first: Updates pending Order to `completed`
 - PAYMENT webhook arrives later: Checks by trxId -> Found existing -> Skips
 
 ### First Payment (Webhook Arrives First, Callback Later)
-- PAYMENT webhook: Finds pending Donation, updates to `completed`
+- PAYMENT webhook: Finds pending Order, updates to `completed`
 - Callback later: `markPaymentSuccess()` is idempotent (skips if already completed)
 
 ### Subsequent Auto-Charges (Only Webhook)
-- PAYMENT webhook: Checks by trxId -> Not found -> Creates new Donation
+- PAYMENT webhook: Checks by trxId -> Not found -> Creates new Order
 - If bKash sends duplicate: trxId already exists -> Skips
 
 ### Key: All paths check `transactionId` (trxId) for deduplication
@@ -596,7 +596,7 @@ This single URL handles ALL webhook types. The `Type` header determines routing.
 | Card types | N/A - bKash wallet only |
 | Pre-notification | 1-3 days before charge (except daily) |
 | Retry on failure | 2 retries every 3 days (except daily - no retry) |
-| Anonymous donations | NOT supported (donor name + phone required) |
+| Guest subscriptions | NOT supported (customer name + phone required) |
 | Fund restriction | Only "regular" fund |
 
 ---
@@ -620,7 +620,7 @@ This single URL handles ALL webhook types. The `Type` header determines routing.
 - [ ] Verify SUBSCRIPTION webhook is received and processed
 - [ ] Verify PAYMENT webhook for first payment
 - [ ] Verify PAYMENT webhook for subsequent auto-charges
-- [ ] Verify failed payment creates failed Donation entry
+- [ ] Verify failed payment creates failed Order entry
 - [ ] Verify retry payment (RE_SUCCEEDED_PAYMENT) works
 - [ ] Verify cancel subscription from our system works
 - [ ] Verify CANCEL webhook from bKash works
@@ -637,7 +637,7 @@ This single URL handles ALL webhook types. The `Type` header determines routing.
 - [ ] Close browser before reaching bKash page
 - [ ] Close browser during bKash consent (after OTP)
 - [ ] Close browser after consent but before callback redirect
-- [ ] Multiple rapid subscription attempts by same donor
+- [ ] Multiple rapid subscription attempts by same customer
 - [ ] Webhook arrives before callback
 - [ ] Invalid subscriptionRequestId in callback
 - [ ] Gateway unavailable (env vars missing)
@@ -658,17 +658,17 @@ The `processRecurringPayments()` cron job only syncs SSLCommerz subscriptions. T
 - **Recommendation:** Add a cron job that periodically queries active bKash subscriptions via `querySubscriptionById()` to sync status
 
 ### 2. Orphaned Processing Records
-RecurringDonations stuck in `initiated` or `processing` state (user abandoned before consent) are never cleaned up. The `reconcilePendingPayments()` cron handles PaymentTransactions but NOT RecurringDonations.
-- **Recommendation:** Add cleanup logic for RecurringDonations in `initiated`/`processing` older than 1 hour
+RecurringSubscriptions stuck in `initiated` or `processing` state (user abandoned before consent) are never cleaned up. The `reconcilePendingPayments()` cron handles PaymentTransactions but NOT RecurringSubscriptions.
+- **Recommendation:** Add cleanup logic for RecurringSubscriptions in `initiated`/`processing` older than 1 hour
 
 ### 3. No Pause/Resume for bKash
 Unlike SSLCommerz, bKash RPP does not support pause/resume via API. Only cancellation is supported. The `extendSubscription()` method exists in the gateway but is not exposed as a route.
 
 ### 4. Subscription ID Storage During Creation
-During creation, the `subscriptionId` field stores the `subscriptionRequestId` (UUID). It is later updated to the actual bKash numeric subscription ID on callback or webhook. The `findRecurringDonation()` helper handles this dual-ID lookup.
+During creation, the `subscriptionId` field stores the `subscriptionRequestId` (UUID). It is later updated to the actual bKash numeric subscription ID on callback or webhook. The `findRecurringSubscription()` helper handles this dual-ID lookup.
 
 ### 5. Daily Frequency Has No Retry
 Per bKash docs, daily subscriptions have NO retry on failure. If a daily charge fails, that cycle's amount is lost.
 
 ### 6. First Payment Special Case
-For BASIC subscription type, the first payment happens via auto-debit on the start date (same day). The pending Donation is updated (not a new one created) when the first PAYMENT webhook arrives. This is correctly handled with the `isFirstPayment` flag and pending donation lookup.
+For BASIC subscription type, the first payment happens via auto-debit on the start date (same day). The pending Order is updated (not a new one created) when the first PAYMENT webhook arrives. This is correctly handled with the `isFirstPayment` flag and pending order lookup.

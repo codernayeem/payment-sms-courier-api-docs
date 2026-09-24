@@ -1,0 +1,20 @@
+﻿Dear Concerned,
+
+This is to inform you that we have validated the shared sandbox test result with new credentials and found footprints in our logs. Please share the following:
+
+Merchant wallet number:
+PGW display name:
+Email address: (where you will receive the production URL and credentials. Only one email address is acceptable)
+Webhook Endpoint URL:
+Please keep your business logo on your server side and share a fixed URL (web link) maintaining the following requirements. We will implement the URL in our system, so that your business logo will appear on the payment page. 
+Dimensions must be 128x128px.
+Logo image format must be .png.
+Logo image size must be within 10KB.
+Logo image file name should be "MerchantName.png"
+URL must be HTTPS (SSL-certified)
+You will receive production credentials along with URLs once integration is done. Looking forward to your prompt response.
+To get visibility in the bKash Customer App, please share the information below:
+Service Bangla Name (Character Limit 40)
+Service English Name (Character Limit: 35)
+Merchant Logo URL associated with the service - 200X200 PNG 
+Also share the logo file as a 200x200 PNG in the attachment.

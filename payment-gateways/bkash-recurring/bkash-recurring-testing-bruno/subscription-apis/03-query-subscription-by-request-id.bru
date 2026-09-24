@@ -1,0 +1,35 @@
+﻿meta {
+  name: #3 / #14 Query Subscription by Request ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscriptions/request-id/{{subscriptionRequestId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  subscriptionRequestId: SUB-REQ-1790170328949-965KH
+}
+
+tests {
+  const json = res.body;
+  console.log("Query by Request ID response:", JSON.stringify(json, null, 2));
+  
+  if (json && json.id) {
+    bru.setVar("bkashSubscriptionId", String(json.id));
+    console.log("bkashSubscriptionId saved:", json.id);
+  }
+  
+  if (json && json.status) {
+    console.log("Subscription status:", json.status);
+  }
+}
+
+docs {
+  Checklist #3 and #14.
+  
+  Use this right after the callback redirect and again about 10 minutes later for verification. The response `id` is saved into `bkashSubscriptionId`.
+}

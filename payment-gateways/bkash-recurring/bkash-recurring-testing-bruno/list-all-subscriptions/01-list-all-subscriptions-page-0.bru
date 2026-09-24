@@ -1,0 +1,20 @@
+meta {
+  name: List All Subscriptions - Page 0
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{bkashBaseUrl}}/api/subscriptions/0/10
+  body: none
+  auth: none
+}
+
+tests {
+  const json = res.body;
+  console.log("All Subscriptions response:", JSON.stringify(json, null, 2));
+}
+
+docs {
+  Lists all subscriptions for the merchant with page `0` and size `10`.
+}

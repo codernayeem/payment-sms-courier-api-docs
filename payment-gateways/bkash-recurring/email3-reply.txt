@@ -1,0 +1,18 @@
+﻿Subject: Re: PGW Integration >> <<<MERCHANT_NAME>>> >> Recurring Payment
+
+Dear <<<BKASH_REPRESENTATIVE>>>,
+
+Here find the requested details & the "MerchantLogo.png" file is attached with this email.
+
+Merchant Wallet Number: <<<MERCHANT_WALLET_NUMBER>>>
+PGW display name: <<<MERCHANT_DISPLAY_NAME>>>
+Email address: <<<MERCHANT_EMAIL_ADDRESS>>>
+Webhook Endpoint URL: https://<<<YOUR_DOMAIN>>>/api/v1/public/recurring-bkash/webhook
+business logo: https://<<<YOUR_DOMAIN>>>/assets/MerchantName.png
+
+Service Bangla Name: <<<SERVICE_BANGLA_NAME>>>
+Service English Name: <<<SERVICE_ENGLISH_NAME>>>
+Merchant Logo URL: https://<<<YOUR_DOMAIN>>>/assets/MerchantLogo.png
+
+Thanks & Regards,
+<<<MERCHANT_NAME>>>

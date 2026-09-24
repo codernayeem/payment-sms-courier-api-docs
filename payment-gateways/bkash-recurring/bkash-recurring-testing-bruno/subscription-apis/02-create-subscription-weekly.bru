@@ -1,0 +1,69 @@
+﻿meta {
+  name: #1 Create Subscription - WEEKLY
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{bkashBaseUrl}}/api/subscription
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "subscriptionRequestId": "{{subscriptionRequestId}}",
+    "serviceId": {{bkashServiceId}},
+    "paymentType": "FIXED",
+    "subscriptionType": "BASIC",
+    "amount": 50,
+    "currency": "BDT",
+    "frequency": "WEEKLY",
+    "startDate": "{{_startDate}}",
+    "expiryDate": "{{_expiryDate}}",
+    "maxCapRequired": false,
+    "payerType": "CUSTOMER",
+    "payer": null,
+    "firstPaymentIncludedInCycle": true,
+    "merchantShortCode": "{{bkashMerchantShortCode}}",
+    "redirectUrl": "{{callbackUrl}}",
+    "subscriptionReference": "SUB-REF-WEEKLY-TEST",
+    "extraParams": null
+  }
+}
+
+script:pre-request {
+  const rid = "SUB-REQ-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+  bru.setVar("subscriptionRequestId", rid);
+  console.log("subscriptionRequestId set to:", rid);
+
+  const bdtOffsetMs = 6 * 60 * 60 * 1000;
+  const nowBdt = new Date(Date.now() + bdtOffsetMs);
+  const startDate = nowBdt.toISOString().split("T")[0];
+  const expiryDate = new Date(Date.now() + bdtOffsetMs + (2 * 365.25 * 24 * 60 * 60 * 1000)).toISOString().split("T")[0];
+
+  bru.setVar("_startDate", startDate);
+  bru.setVar("_expiryDate", expiryDate);
+}
+
+tests {
+  const json = res.body;
+  console.log("Create Subscription (WEEKLY) response:", JSON.stringify(json, null, 2));
+
+  if (json && json.redirectURL) {
+    console.log("");
+    console.log("=== OPEN THIS URL IN BROWSER TO COMPLETE CONSENT ===");
+    console.log(json.redirectURL);
+    console.log("===================================================");
+  }
+
+  if (json && json.subscriptionRequestId) {
+    bru.setVar("subscriptionRequestId", json.subscriptionRequestId);
+  }
+}
+
+docs {
+  Checklist #1 for `WEEKLY`.
+
+  Same flow as the daily variant, but uses `frequency: WEEKLY` and `amount: 50`.
+}

@@ -1,11 +1,11 @@
-Dear Concern,
+﻿Dear Concern,
  
 Please find the following details for Sandbox test as per continuation of previous email.
  
 Parameter
 Details
 Merchant short code
-50022
+<<<BKASH_MERCHANT_SHORT_CODE>>>
 Display Name
 Test RPP Merchant SANDBOX 02
 Webhook endpoint url
@@ -13,7 +13,7 @@ https://<<<YOUR_DOMAIN>>>/api/v1/public/recurring-bkash/webhook
 api_key
 <<<BKASH_SANDBOX_API_KEY>>>
 Service Id
-100001
+<<<BKASH_SERVICE_ID>>>
 Credential Expires On
 31 March, 2026
  

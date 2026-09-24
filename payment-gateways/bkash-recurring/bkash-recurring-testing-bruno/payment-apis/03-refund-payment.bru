@@ -1,0 +1,29 @@
+meta {
+  name: #12 Refund Payment
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{bkashBaseUrl}}/api/subscription/payment/refund
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "paymentId": {{bkashPaymentId}},
+    "amount": 10
+  }
+}
+
+tests {
+  console.log("Refund response status:", res.statusText || res.status);
+  console.log("Refund response body:", typeof res.body === "string" ? res.body : JSON.stringify(res.body, null, 2));
+}
+
+docs {
+  Checklist #12.
+
+  bKash usually responds with HTTP 200 and an empty body. The actual refund outcome arrives through the refund webhook.
+}
