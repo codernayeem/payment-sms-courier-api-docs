@@ -1,0 +1,20 @@
+Dear Recipient,
+Greetings!
+ 
+Your bKash Recurring Payment service is ready. Please find below the details:
+ 
+Parameter
+Details
+API Key
+<<<API_KEY>>>
+baseUrl 
+https://gateway.recurring.pay.bka.sh/gateway
+Service Id
+100001
+Merchant short code
+<<<CODE>>>
+ 
+Please keep it confidential and do not reply to this email. Contact your account manager if you face any difficulties.
+ 
+Regards,
+bKash Limited
